@@ -1,0 +1,603 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Chakra Petch', 'Orbitron', system-ui, sans-serif;
+    letter-spacing: 0.03em;
+  }
+
+  .font-game {
+    font-family: 'Orbitron', 'Russo One', system-ui, sans-serif;
+    letter-spacing: 0.04em;
+  }
+
+  .font-mono-num {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* 3D Video Game Dimensional Typography */
+.game-title-emerald {
+  font-family: 'Orbitron', 'Russo One', system-ui, sans-serif;
+  background: linear-gradient(180deg, #ffffff 0%, #86efac 42%, #10b981 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 3px 0 #064e3b) drop-shadow(0 6px 14px rgba(16, 185, 129, 0.55));
+}
+
+.game-title-gold {
+  font-family: 'Orbitron', 'Russo One', system-ui, sans-serif;
+  background: linear-gradient(180deg, #fef9c3 0%, #facc15 48%, #d97706 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 3px 0 #78350f) drop-shadow(0 6px 16px rgba(250, 204, 21, 0.5));
+}
+
+.game-subtitle-neon {
+  font-family: 'Chakra Petch', system-ui, sans-serif;
+  text-shadow: 0 0 12px rgba(45, 212, 191, 0.75), 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+/* ==========================================================================
+   3D Gamification UI Button System
+   ========================================================================== */
+.btn-game-emerald,
+.btn-game-gold,
+.btn-game-cyan,
+.btn-game-teal,
+.btn-game-purple,
+.btn-game-rose,
+.btn-game-slate {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.14s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.16s ease;
+  will-change: transform;
+}
+
+.btn-game-emerald::before,
+.btn-game-gold::before,
+.btn-game-cyan::before,
+.btn-game-teal::before,
+.btn-game-purple::before,
+.btn-game-rose::before,
+.btn-game-slate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.28) 50%, transparent 80%);
+  transform: translateX(-130%);
+  transition: transform 0.55s ease;
+  pointer-events: none;
+}
+
+.btn-game-emerald:hover:not(:disabled)::before,
+.btn-game-gold:hover:not(:disabled)::before,
+.btn-game-cyan:hover:not(:disabled)::before,
+.btn-game-teal:hover:not(:disabled)::before,
+.btn-game-purple:hover:not(:disabled)::before,
+.btn-game-rose:hover:not(:disabled)::before,
+.btn-game-slate:hover:not(:disabled)::before {
+  transform: translateX(130%);
+}
+
+/* Emerald 3D */
+.btn-game-emerald {
+  background: linear-gradient(180deg, #4ade80 0%, #10b981 52%, #059669 100%);
+  border: 2px solid #bbf7d0;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.48), 0 5px 0 #064e3b, 0 10px 20px rgba(16, 185, 129, 0.38);
+}
+.btn-game-emerald:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.07);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.55), 0 7px 0 #064e3b, 0 14px 28px rgba(52, 211, 153, 0.65);
+}
+.btn-game-emerald:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.25), 0 2px 0 #064e3b, 0 4px 10px rgba(16, 185, 129, 0.35);
+}
+
+/* Gold 3D */
+.btn-game-gold {
+  background: linear-gradient(180deg, #fef08a 0%, #facc15 50%, #d97706 100%);
+  border: 2px solid #fef9c3;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.62), 0 5px 0 #78350f, 0 10px 22px rgba(250, 204, 21, 0.42);
+}
+.btn-game-gold:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.72), 0 7px 0 #78350f, 0 14px 30px rgba(250, 204, 21, 0.72);
+}
+.btn-game-gold:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.22), 0 2px 0 #78350f, 0 4px 10px rgba(250, 204, 21, 0.38);
+}
+
+/* Cyan / Sky 3D */
+.btn-game-cyan {
+  background: linear-gradient(180deg, #7dd3fc 0%, #0ea5e9 52%, #0369a1 100%);
+  border: 2px solid #e0f2fe;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.48), 0 5px 0 #0c4a6e, 0 10px 20px rgba(14, 165, 233, 0.38);
+}
+.btn-game-cyan:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.07);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.56), 0 7px 0 #0c4a6e, 0 14px 28px rgba(56, 189, 248, 0.65);
+}
+.btn-game-cyan:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.25), 0 2px 0 #0c4a6e, 0 4px 10px rgba(14, 165, 233, 0.35);
+}
+
+/* Teal Mint 3D */
+.btn-game-teal {
+  background: linear-gradient(180deg, #5eead4 0%, #14b8a6 52%, #0f766e 100%);
+  border: 2px solid #ccfbf1;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.46), 0 5px 0 #134e4a, 0 10px 20px rgba(20, 184, 166, 0.38);
+}
+.btn-game-teal:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.07);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.54), 0 7px 0 #134e4a, 0 14px 28px rgba(45, 212, 191, 0.62);
+}
+.btn-game-teal:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.25), 0 2px 0 #134e4a, 0 4px 10px rgba(20, 184, 166, 0.35);
+}
+
+/* Purple Heroic 3D */
+.btn-game-purple {
+  background: linear-gradient(180deg, #d8b4fe 0%, #9333ea 52%, #6b21a8 100%);
+  border: 2px solid #f3e8ff;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.42), 0 5px 0 #3b0764, 0 10px 20px rgba(147, 51, 234, 0.38);
+}
+.btn-game-purple:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), 0 7px 0 #3b0764, 0 14px 26px rgba(168, 85, 247, 0.62);
+}
+.btn-game-purple:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.28), 0 2px 0 #3b0764;
+}
+
+/* Rose / Crimson 3D */
+.btn-game-rose {
+  background: linear-gradient(180deg, #fb7185 0%, #e11d48 54%, #be123c 100%);
+  border: 2px solid #fecdd3;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 5px 0 #4c0519, 0 10px 18px rgba(225, 29, 72, 0.38);
+}
+.btn-game-rose:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), 0 7px 0 #4c0519, 0 14px 26px rgba(244, 63, 94, 0.6);
+}
+.btn-game-rose:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3), 0 2px 0 #4c0519;
+}
+
+/* Slate Obsidian 3D (Secondary / Tactile Controls) */
+.btn-game-slate {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 55%, #0f172a 100%);
+  border: 2px solid #475569;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 4px 0 #020617, 0 8px 16px rgba(2, 6, 23, 0.45);
+}
+.btn-game-slate:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+  filter: brightness(1.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 6px 0 #020617, 0 12px 22px rgba(14, 165, 233, 0.25);
+}
+.btn-game-slate:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.35), 0 2px 0 #020617;
+}
+
+/* Compact 3D modifier for dense D-pads, top bar & table action buttons */
+.btn-game-sm {
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.38), 0 3px 0 rgba(2, 6, 23, 0.72), 0 5px 10px rgba(0, 0, 0, 0.35);
+}
+.btn-game-sm:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+}
+.btn-game-sm:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(2, 6, 23, 0.8);
+}
+
+/* Glossy 3D Icon Orb inside Gamified Buttons */
+.btn-icon-3d {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.55rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.12) 100%);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.65), 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes waveBounce {
+  0%, 100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.wave-bar-active {
+  animation: waveBounce 0.6s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes musicNoteFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(-4deg) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) rotate(5deg) scale(1.07);
+  }
+}
+
+.music-note-playing {
+  animation: musicNoteFloat 1.35s ease-in-out infinite;
+}
+
+@keyframes glowPulseTeal {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(20, 184, 166, 0.45), 0 8px 0 rgba(8, 51, 68, 0.85), 0 14px 28px rgba(2, 6, 23, 0.65);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(56, 189, 248, 0.72), 0 8px 0 rgba(8, 51, 68, 0.85), 0 16px 34px rgba(16, 185, 129, 0.42);
+  }
+}
+
+.music-panel-3d {
+  background: linear-gradient(155deg, rgba(8, 51, 68, 0.96) 0%, rgba(6, 78, 59, 0.95) 55%, rgba(12, 74, 110, 0.96) 100%);
+  border: 2px solid rgba(94, 234, 212, 0.65);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.28), 0 8px 0 rgba(8, 47, 73, 0.9), 0 14px 30px rgba(2, 6, 23, 0.65);
+}
+
+.music-panel-3d-playing {
+  animation: glowPulseTeal 2.6s ease-in-out infinite;
+}
+
+/* Custom glowing turquoise-green volume range slider */
+.music-slider-3d {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 10px;
+  border-radius: 9999px;
+  outline: none;
+  border: 1.5px solid rgba(94, 234, 212, 0.45);
+  box-shadow: inset 0 2px 4px rgba(2, 6, 23, 0.75);
+}
+.music-slider-3d::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #e0f2fe 0%, #2dd4bf 55%, #059669 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 0 #064e3b, 0 0 10px rgba(45, 212, 191, 0.85);
+  cursor: pointer;
+  transition: transform 0.14s ease;
+}
+.music-slider-3d::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+.music-slider-3d::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #e0f2fe 0%, #2dd4bf 55%, #059669 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 0 #064e3b, 0 0 10px rgba(45, 212, 191, 0.85);
+  cursor: pointer;
+}
+
+/* Custom sleek scrollbar for mission drawers & dashboards */
+.eco-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.eco-scroll::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.35);
+}
+.eco-scroll::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.45);
+  border-radius: 9999px;
+}
+.eco-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 197, 94, 0.7);
+}
+
+@media print {
+  body {
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .cert-printable {
+    position: static !important;
+    box-shadow: none !important;
+    border: 6px double #15803d !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+}
+
+/* ==========================================================================
+   Futuristic EcoWorld Mission Control Access Portal Styles & Animations
+   ========================================================================== */
+.portal-glass-card {
+  background: linear-gradient(
+    155deg,
+    rgba(6, 20, 48, 0.88) 0%,
+    rgba(9, 32, 68, 0.85) 52%,
+    rgba(6, 54, 68, 0.88) 100%
+  );
+  border: 2px solid rgba(56, 189, 248, 0.52);
+  box-shadow:
+    inset 0 2px 0 rgba(186, 230, 253, 0.3),
+    inset 0 -2px 14px rgba(16, 185, 129, 0.14),
+    0 18px 46px rgba(2, 6, 23, 0.72),
+    0 0 34px rgba(14, 165, 233, 0.25);
+}
+
+.portal-glass-sub {
+  background: linear-gradient(160deg, rgba(10, 28, 62, 0.82) 0%, rgba(7, 41, 66, 0.82) 100%);
+  border: 1.5px solid rgba(45, 212, 191, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 20px rgba(2, 6, 23, 0.45);
+}
+
+@keyframes portalTabSlide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.portal-tab-slide {
+  animation: portalTabSlide 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-pop-in {
+  animation: modalPopIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes portalBorderPulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.52),
+      0 4px 0 #064e3b,
+      0 0 16px rgba(45, 212, 191, 0.6);
+  }
+  50% {
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.65),
+      0 4px 0 #064e3b,
+      0 0 26px rgba(56, 189, 248, 0.92);
+  }
+}
+
+.portal-role-active {
+  animation: portalBorderPulse 2.3s ease-in-out infinite;
+}
+
+@keyframes confirmGreenPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.72), 0 0 18px rgba(34, 211, 238, 0.65);
+  }
+  65% {
+    box-shadow: 0 0 0 8px rgba(52, 211, 153, 0), 0 0 24px rgba(34, 211, 238, 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0), 0 0 16px rgba(34, 211, 238, 0.45);
+  }
+}
+
+.confirm-green-pulse {
+  animation: confirmGreenPulse 0.85s ease-out;
+}
+
+@keyframes heroGlobeFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.hero-globe-float {
+  animation: heroGlobeFloat 4.2s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   3D Hologram Victory Popup & Neon Pulsing Button System
+   ========================================================================== */
+@keyframes holoPanelEntrance {
+  0% {
+    opacity: 0;
+    transform: perspective(1000px) rotateX(12deg) scale(0.84) translateY(22px);
+  }
+  65% {
+    opacity: 1;
+    transform: perspective(1000px) rotateX(-2deg) scale(1.02) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1000px) rotateX(0deg) scale(1) translateY(0);
+  }
+}
+
+@keyframes holoTextReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes holoScanSweep {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(220%);
+  }
+}
+
+@keyframes neonButtonPulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.58),
+      0 5px 0 #064e3b,
+      0 0 18px rgba(34, 211, 238, 0.72),
+      0 0 36px rgba(52, 211, 153, 0.48);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.78),
+      0 5px 0 #064e3b,
+      0 0 28px rgba(34, 211, 238, 0.98),
+      0 0 54px rgba(52, 211, 153, 0.78);
+    transform: scale(1.025);
+  }
+}
+
+.holo-victory-panel {
+  position: relative;
+  background: linear-gradient(
+    155deg,
+    rgba(6, 28, 56, 0.94) 0%,
+    rgba(6, 62, 66, 0.92) 52%,
+    rgba(8, 36, 68, 0.95) 100%
+  );
+  border: 2px solid rgba(56, 189, 248, 0.88);
+  box-shadow:
+    inset 0 0 28px rgba(34, 211, 238, 0.22),
+    inset 0 2px 0 rgba(186, 230, 253, 0.45),
+    0 0 42px rgba(14, 165, 233, 0.45),
+    0 24px 60px rgba(2, 6, 23, 0.82);
+  backdrop-filter: blur(12px);
+  animation: holoPanelEntrance 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.holo-scanline {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(56, 189, 248, 0.05) 0px,
+    rgba(56, 189, 248, 0.05) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+.holo-sweep-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 45%;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(34, 211, 238, 0.14) 50%,
+    transparent 100%
+  );
+  animation: holoScanSweep 4.2s linear infinite;
+}
+
+.holo-text-reveal {
+  animation: holoTextReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.btn-neon-pulse {
+  background: linear-gradient(180deg, #67e8f9 0%, #10b981 48%, #059669 100%);
+  border: 2px solid #ecfeff;
+  animation: neonButtonPulse 1.85s ease-in-out infinite;
+}
+.btn-neon-pulse:hover:not(:disabled) {
+  filter: brightness(1.09);
+}
+.btn-neon-pulse:active:not(:disabled) {
+  transform: translateY(3px) scale(0.99);
+}
+
+@keyframes controlBoardHoloIn {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+    filter: brightness(1.35);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.005);
+    filter: brightness(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: brightness(1);
+  }
+}
+
+.control-board-holo-in {
+  animation: controlBoardHoloIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mission-board-shell {
+  background: linear-gradient(
+    165deg,
+    rgba(6, 20, 42, 0.92) 0%,
+    rgba(8, 30, 52, 0.9) 55%,
+    rgba(4, 15, 32, 0.94) 100%
+  );
+  border: 1.5px solid rgba(56, 189, 248, 0.48);
+  box-shadow:
+    inset 0 1px 0 rgba(165, 243, 252, 0.35),
+    inset 0 0 24px rgba(16, 185, 129, 0.12),
+    0 12px 32px rgba(2, 6, 23, 0.82),
+    0 0 22px rgba(34, 211, 238, 0.16);
+  backdrop-filter: blur(10px);
+}

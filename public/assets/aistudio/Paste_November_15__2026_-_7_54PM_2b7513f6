@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suara Generasi Prihatin: Misi Menyelamatkan Bumi</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest-dark: #0f3d24; --forest: #15803d; --forest-light: #22c55e;
+    --river-dark: #0369a1; --river: #0ea5e9; --gold: #eab308; --gold-bright: #facc15;
+    --hud-bg: #0f172a; --hud-card: #1e293b; --hud-border: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: radial-gradient(circle at top, #0c4a6e 0%, #062c1e 55%, #090d16 100%);
+    color: #0f172a; min-height: 100vh; overflow-x: hidden;
+  }
+  h1, h2, h3, h4, .game-font { font-family: 'Fredoka', system-ui, sans-serif; letter-spacing: 0.4px; }
+
+  /* Animations */
+  @keyframes floatUp { 0%{transform:translateY(105vh) rotate(0);opacity:0} 15%{opacity:.25} 85%{opacity:.25} 100%{transform:translateY(-10vh) rotate(360deg);opacity:0} }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  @keyframes pulseGlow { 0%,100%{box-shadow:0 0 12px rgba(34,197,94,.45)} 50%{box-shadow:0 0 28px rgba(250,204,21,.85)} }
+  @keyframes waveAnim { from{height:8px} to{height:32px;background:#4ade80} }
+  @keyframes hotspotPulse { 0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(1.18);opacity:1} }
+
+  .eco-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .leaf-float { position: absolute; opacity: 0.2; animation: floatUp 16s infinite linear; }
+
+  #app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+  .container { max-width: 1220px; margin: 0 auto; padding: 18px; width: 100%; }
+
+  /* 3D Adventure Buttons */
+  .btn-game {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 20px; border-radius: 14px; border: none; cursor: pointer;
+    font-family: 'Fredoka', sans-serif; font-size: 1rem; font-weight: 600;
+    transition: transform 0.1s, box-shadow 0.1s, filter 0.15s;
+  }
+  .btn-game:active { transform: translateY(3px); }
+  .btn-primary { background: linear-gradient(180deg,#22c55e,#15803d); color:#fff; box-shadow: 0 5px 0 #0d4a25, 0 8px 18px rgba(0,0,0,.3); }
+  .btn-primary:active { box-shadow: 0 2px 0 #0d4a25; }
+  .btn-gold { background: linear-gradient(180deg,#fde047,#ca8a04); color:#1e293b; box-shadow: 0 5px 0 #854d0e, 0 8px 18px rgba(0,0,0,.3); }
+  .btn-gold:active { box-shadow: 0 2px 0 #854d0e; }
+  .btn-blue { background: linear-gradient(180deg,#38bdf8,#0284c7); color:#fff; box-shadow: 0 5px 0 #075985, 0 8px 18px rgba(0,0,0,.3); }
+  .btn-blue:active { box-shadow: 0 2px 0 #075985; }
+  .btn-danger { background: linear-gradient(180deg,#f87171,#dc2626); color:#fff; box-shadow: 0 4px 0 #991b1b; }
+  .btn-outline { background: rgba(255,255,255,0.1); color:#fff; border:2px solid rgba(255,255,255,0.35); }
+  .btn-sm { padding: 7px 13px; font-size: 0.85rem; border-radius: 10px; }
+
+  /* Cards & HUD */
+  .card { background: rgba(255,255,255,0.97); border-radius: 22px; padding: 24px; box-shadow: 0 16px 40px rgba(0,0,0,.3); border: 3px solid #fff; }
+  .hud-card { background: linear-gradient(145deg,rgba(15,23,42,.96),rgba(30,41,59,.95)); color:#f8fafc; border-radius: 22px; padding: 22px; border: 2px solid #334155; box-shadow: 0 14px 35px rgba(0,0,0,.4); }
+
+  .top-hud {
+    background: rgba(15,23,42,.94); backdrop-filter: blur(10px);
+    border-bottom: 3px solid #22c55e; padding: 10px 22px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+    color: #fff; position: sticky; top: 0; z-index: 50;
+  }
+
+  /* Login */
+  .login-wrapper { display: grid; grid-template-columns: 1.15fr 1fr; gap: 26px; align-items: center; min-height: calc(100vh - 40px); padding: 16px; }
+  @media (max-width: 900px) { .login-wrapper { grid-template-columns: 1fr; } }
+  .role-tabs { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 18px; }
+  .role-tab { padding: 12px 6px; border-radius: 14px; border: 2px solid #cbd5e1; background: #f8fafc; cursor: pointer; text-align: center; font-weight: 700; transition: .2s; }
+  .role-tab.active { border-color: #16a34a; background: #dcfce7; color: #14532d; transform: translateY(-2px); box-shadow: 0 5px 14px rgba(22,163,74,.2); }
+
+  /* Forms & Grids */
+  .form-group { margin-bottom: 13px; }
+  .form-group label { display: block; font-weight: 700; font-size: 0.87rem; margin-bottom: 5px; color: #334155; }
+  .hud-card .form-group label { color: #cbd5e1; }
+  .form-control { width: 100%; padding: 10px 14px; border-radius: 12px; border: 2px solid #cbd5e1; font-family: inherit; font-size: 0.94rem; background: #fff; color: #0f172a; }
+  .form-control:focus { outline: none; border-color: #0ea5e9; }
+  textarea.form-control { min-height: 84px; resize: vertical; }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; }
+  @media (max-width: 960px) { .grid-4, .grid-5 { grid-template-columns: repeat(2,1fr); } .grid-3 { grid-template-columns: 1fr; } }
+  @media (max-width: 680px) { .grid-2, .grid-4, .grid-5 { grid-template-columns: 1fr; } }
+
+  .stat-tile { background: linear-gradient(135deg,#1e293b,#0f172a); border: 1.5px solid #334155; border-radius: 16px; padding: 16px; color: #fff; }
+  .stat-tile .val { font-family: 'Fredoka', sans-serif; font-size: 1.9rem; color: #4ade80; }
+  .stat-tile .lbl { font-size: 0.82rem; color: #94a3b8; font-weight: 600; }
+
+  .xp-bar-wrap { background: #1e293b; border-radius: 999px; height: 18px; overflow: hidden; border: 2px solid #334155; }
+  .xp-bar-fill { height: 100%; background: linear-gradient(90deg,#22c55e,#facc15); transition: width .5s ease; }
+
+  /* Adventure Map */
+  .map-board {
+    position: relative; border-radius: 26px; overflow: hidden;
+    background: linear-gradient(180deg,#38bdf8 0%,#7dd3fc 22%,#86efac 55%,#15803d 100%);
+    border: 4px solid #facc15; box-shadow: 0 20px 45px rgba(0,0,0,.45); padding: 24px;
+  }
+  .map-nodes { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; position: relative; z-index: 2; margin-top: 18px; }
+  @media (max-width: 980px) { .map-nodes { grid-template-columns: 1fr; } }
+  .zone-card {
+    background: rgba(255,255,255,.95); border-radius: 20px; padding: 16px; text-align: center;
+    border: 3px solid #cbd5e1; transition: .25s; display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: 0 10px 20px rgba(0,0,0,.18); position: relative;
+  }
+  .zone-card.unlocked { border-color: #16a34a; cursor: pointer; }
+  .zone-card.unlocked:hover { transform: translateY(-6px); box-shadow: 0 16px 30px rgba(0,0,0,.3); }
+  .zone-card.completed { border-color: #eab308; background: linear-gradient(180deg,#fefce8,#fff); }
+  .zone-card.locked { opacity: .72; filter: grayscale(.7); background: #e2e8f0; }
+  .avatar-pin {
+    position: absolute; top: -16px; right: 10px; background: #0f172a; color: #facc15;
+    border: 2px solid #facc15; border-radius: 999px; padding: 3px 10px; font-size: 0.85rem; font-weight: 800;
+    animation: bob 1.8s infinite; box-shadow: 0 4px 10px rgba(0,0,0,.3);
+  }
+
+  /* Interactive Game Scenes */
+  .scene-stage {
+    position: relative; border-radius: 20px; overflow: hidden; border: 3px solid #0284c7;
+    background: #0f172a; margin-bottom: 18px; user-select: none;
+  }
+  .hotspot-btn {
+    position: absolute; background: rgba(250, 204, 21, 0.92); border: 3px solid #fff;
+    border-radius: 999px; padding: 6px 12px; font-family: 'Fredoka', sans-serif; font-size: 0.85rem;
+    cursor: pointer; animation: hotspotPulse 1.6s infinite; box-shadow: 0 6px 16px rgba(0,0,0,.4);
+    color: #0f172a; font-weight: 700;
+  }
+  .hotspot-btn.found { background: #22c55e; color: #fff; animation: none; opacity: 0.88; }
+  .npc-bubble {
+    display: flex; gap: 14px; align-items: flex-start; background: #0f172a; color: #fff;
+    padding: 16px; border-radius: 18px; border: 2px solid #38bdf8; margin-bottom: 16px;
+  }
+
+  /* Tables, Tags, Badges */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { padding: 11px 12px; text-align: left; border-bottom: 1px solid #334155; }
+  th { font-size: 0.76rem; text-transform: uppercase; color: #94a3b8; }
+  .tag { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+  .tag-green { background: #dcfce7; color: #166534; }
+  .tag-yellow { background: #fef9c3; color: #854d0e; }
+  .tag-red { background: #fee2e2; color: #991b1b; }
+  .tag-blue { background: #e0f2fe; color: #075985; }
+  .badge-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; font-weight: 700; font-size: 0.82rem; border: 2px solid; }
+  .badge-earned { background: #fef08a; border-color: #eab308; color: #713f12; }
+  .badge-locked { background: #1e293b; border-color: #475569; color: #64748b; opacity: .65; }
+
+  .nav-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .nav-pill { padding: 8px 15px; border-radius: 12px; border: 2px solid #334155; background: #1e293b; color: #cbd5e1; cursor: pointer; font-weight: 700; font-size: 0.86rem; }
+  .nav-pill.active { background: #22c55e; border-color: #4ade80; color: #052e16; }
+
+  .media-box { background: #0f172a; color: #fff; border-radius: 18px; padding: 18px; border: 2px solid #38bdf8; margin-bottom: 16px; }
+  .wave-bars { display: flex; align-items: center; gap: 4px; height: 34px; }
+  .wave-bar { width: 5px; background: #38bdf8; border-radius: 4px; height: 10px; }
+  .playing .wave-bar { animation: waveAnim .55s infinite alternate; }
+  .wave-bar:nth-child(2){animation-delay:.1s} .wave-bar:nth-child(3){animation-delay:.25s} .wave-bar:nth-child(4){animation-delay:.15s} .wave-bar:nth-child(5){animation-delay:.3s}
+
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(2,6,23,.8); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 100; }
+  .modal-box { background: #fff; color: #0f172a; border-radius: 24px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 26px; border: 4px solid #22c55e; box-shadow: 0 24px 60px rgba(0,0,0,.5); }
+
+  #toast { position: fixed; bottom: 22px; right: 22px; background: #0f172a; color: #fff; padding: 13px 18px; border-radius: 14px; border-left: 5px solid #22c55e; box-shadow: 0 12px 30px rgba(0,0,0,.45); z-index: 200; display: none; font-weight: 600; }
+
+  @media print {
+    body { background: #fff !important; }
+    .no-print { display: none !important; }
+    .cert-printable { border: 8px double #15803d !important; box-shadow: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="eco-bg" aria-hidden="true">
+  <div class="leaf-float" style="left:8%;font-size:28px;animation-duration:14s;">🍃</div>
+  <div class="leaf-float" style="left:28%;font-size:24px;animation-duration:18s;animation-delay:2s;">💧</div>
+  <div class="leaf-float" style="left:52%;font-size:30px;animation-duration:15s;animation-delay:4s;">🌿</div>
+  <div class="leaf-float" style="left:76%;font-size:24px;animation-duration:19s;animation-delay:1s;">🌱</div>
+</div>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toast"></div>
+
+<script>
+/* ============================================================================
+   ENJIN KESAN BUNYI PERMAINAN (WEB AUDIO API - BERFUNGSI TANPA FAIL LUAR)
+   ============================================================================ */
+let soundOn = true;
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let ctx = null;
+function playSFX(type) {
+  if (!soundOn || !AudioCtx) return;
+  try {
+    if (!ctx) ctx = new AudioCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    const now = ctx.currentTime;
+    if (type === 'click') {
+      o.type = 'sine'; o.frequency.setValueAtTime(520, now); o.frequency.exponentialRampToValueAtTime(760, now + 0.07);
+      g.gain.setValueAtTime(0.08, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      o.start(now); o.stop(now + 0.08);
+    } else if (type === 'xp') {
+      o.type = 'triangle'; o.frequency.setValueAtTime(587, now); o.frequency.setValueAtTime(880, now + 0.09);
+      g.gain.setValueAtTime(0.12, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      o.start(now); o.stop(now + 0.25);
+    } else if (type === 'win') {
+      [523, 659, 784, 1046].forEach((freq, i) => {
+        const osc = ctx.createOscillator(), gn = ctx.createGain();
+        osc.type = 'triangle'; osc.connect(gn); gn.connect(ctx.destination);
+        osc.frequency.setValueAtTime(freq, now + i * 0.1);
+        gn.gain.setValueAtTime(0.12, now + i * 0.1); gn.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.35);
+        osc.start(now + i * 0.1); osc.stop(now + i * 0.1 + 0.35);
+      });
+    } else if (type === 'error') {
+      o.type = 'sawtooth'; o.frequency.setValueAtTime(220, now); o.frequency.linearRampToValueAtTime(140, now + 0.18);
+      g.gain.setValueAtTime(0.08, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      o.start(now); o.stop(now + 0.2);
+    }
+  } catch (e) {}
+}
+
+/* ============================================================================
+   PANGKALAN DATA LOKAL & STRUKTUR REKOD
+   ============================================================================ */
+const STORAGE_KEY = 'ecoworld_game_bm6_v2';
+const BADGES_DEF = [
+  { id: 'eco_explorer', name: 'Eco Explorer', icon: '🧭', desc: 'Menjelajah & melepasi Misi 1 dan Misi 2 dengan skor ≥ 70%.' },
+  { id: 'listening_detective', name: 'Listening Detective', icon: '🎧', desc: 'Mengesan maklumat tersurat & tersirat dengan cemerlang (Misi 1 ≥ 80%).' },
+  { id: 'critical_thinker', name: 'Critical Thinker', icon: '🧠', desc: 'Menguasai analisis punca-kesan & penilaian penyelesaian (Misi 2 & 3 ≥ 75%).' },
+  { id: 'brilliant_speaker', name: 'Brilliant Speaker', icon: '🎙️', desc: 'Membina hujah kritis & melengkapkan latihan bertutur di Makmal Suara.' },
+  { id: 'eco_hero', name: 'Eco Hero', icon: '🏆', desc: 'Menjayakan Kempen Digital PBL: Selamatkan EcoWorld!' }
+];
+const AVATARS = [
+  { id: 'rimba', name: 'Ejen Rimba', emoji: '🦊' },
+  { id: 'tirta', name: 'Ejen Tirta', emoji: '🐬' },
+  { id: 'bayu', name: 'Ejen Bayu', emoji: '🦅' },
+  { id: 'suara', name: 'Ejen Suara', emoji: '🦁' }
+];
+const DEFAULT_MISSIONS = [
+  { id: 1, title: 'Zon Sungai Tercemar', focus: 'Mendengar & Maklumat Tersurat/Tersirat', icon: '🌊', maxXp: 150, active: true },
+  { id: 2, title: 'Bandar Udara Beracun', focus: 'Analisis Punca, Kesan & KBAT', icon: '🏭', maxXp: 180, active: true },
+  { id: 3, title: 'Hutan Harapan', focus: 'Menilai Cadangan Penyelesaian', icon: '🌳', maxXp: 180, active: true },
+  { id: 4, title: 'Makmal Suara', focus: 'Membina Hujah & Bertutur', icon: '🎙️', maxXp: 220, active: true },
+  { id: 5, title: 'Operasi Selamatkan EcoWorld', focus: 'Projek Kempen Digital PBL', icon: '🌍', maxXp: 300, active: true }
+];
+const DEFAULT_DB = {
+  apiEndpoint: '',
+  classes: [
+    { id: 'c1', name: '6 Bestari', code: '6BESTARI', teacherUsername: 'cikgu_amina' },
+    { id: 'c2', name: '6 Cerdik', code: '6CERDIK', teacherUsername: 'cikgu_amina' }
+  ],
+  missions: DEFAULT_MISSIONS,
+  users: [
+    { id: 'adm1', role: 'admin', username: 'admin', password: 'admin123', fullName: 'Penyelaras DLO EcoWorld' },
+    { id: 'tch1', role: 'guru', username: 'cikgu_amina', password: 'guru123', fullName: 'Cikgu Amina binti Razak', classes: ['6 Bestari', '6 Cerdik'] },
+    {
+      id: 'M001', role: 'murid', username: 'ali_ejen', password: 'murid123', fullName: 'Ali bin Hassan',
+      studentId: 'BM6-001', className: '6 Bestari', classCode: '6BESTARI', avatar: 'rimba',
+      xp: 530, unlockedMission: 4,
+      progress: {
+        m1: { completed: true, score: 90, tersuratScore: 100, tersiratScore: 80, evidence: ['Paip kilang buang sisa waktu malam', 'Ratusan ikan mati & air hitam'] },
+        m2: { completed: true, score: 85, kbatScore: 85, thinkingMap: { punca: 'Asap kilang & kenderaan', kesan: 'Jerebu & sesak nafas' }, kbatAnswer: 'Indeks pencemaran meningkat dan kesihatan murid terjejas.' },
+        m3: { completed: true, score: 80, chosenOption: 'Pilihan B: Penguatkuasaan Penapis Asap + Hutan & Pengangkutan Hijau', justification: 'Menangani punca secara mampan.' },
+        m4: { completed: false, score: 0, argument: null, hasRecording: false },
+        m5: { completed: false, submitted: false, link: '', title: '', stepsDone: [], rubricScore: 0, reflection: '' }
+      },
+      badges: ['eco_explorer', 'listening_detective', 'critical_thinker'],
+      teacherFeedback: 'Syabas Ali! Teruskan ke Makmal Suara untuk berlatih intonasi hujah.',
+      aiApprovedByTeacher: true, peerFeedback: ''
+    },
+    {
+      id: 'M002', role: 'murid', username: 'siti_ejen', password: 'murid123', fullName: 'Siti Nurhaliza binti Kamal',
+      studentId: 'BM6-002', className: '6 Bestari', classCode: '6BESTARI', avatar: 'tirta',
+      xp: 120, unlockedMission: 2,
+      progress: {
+        m1: { completed: true, score: 55, tersuratScore: 70, tersiratScore: 40, evidence: ['Air sungai bertukar hitam'] },
+        m2: { completed: false, score: 0, kbatScore: 0, thinkingMap: null, kbatAnswer: '' },
+        m3: { completed: false, score: 0, chosenOption: '', justification: '' },
+        m4: { completed: false, score: 0, argument: null, hasRecording: false },
+        m5: { completed: false, submitted: false, link: '', title: '', stepsDone: [], rubricScore: 0, reflection: '' }
+      },
+      badges: [], teacherFeedback: 'Dengar semula laporan Pak Mail untuk mengesan maksud tersirat.',
+      aiApprovedByTeacher: false, peerFeedback: ''
+    }
+  ],
+  logs: [
+    { time: '08:30', actor: 'Ali bin Hassan', action: 'Menyelesaikan Misi 3: Hutan Harapan (80%)' },
+    { time: '09:15', actor: 'Siti Nurhaliza', action: 'Menyelesaikan Misi 1: Zon Sungai Tercemar (55%)' }
+  ]
+};
+
+function getDB() {
+  try {
+    const r = localStorage.getItem(STORAGE_KEY);
+    if (!r) { localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_DB)); return JSON.parse(JSON.stringify(DEFAULT_DB)); }
+    return JSON.parse(r);
+  } catch (e) { return JSON.parse(JSON.stringify(DEFAULT_DB)); }
+}
+function saveDB(db) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  if (db.apiEndpoint) {
+    fetch(db.apiEndpoint, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'syncDB', payload:db}) }).catch(()=>{});
+  }
+}
+function addLog(db, actor, action) {
+  const time = new Date().toLocaleTimeString('ms-MY', { hour:'2-digit', minute:'2-digit' });
+  db.logs.unshift({ time, actor, action });
+  if (db.logs.length > 25) db.logs.pop();
+}
+
+let state = {
+  currentUserId: null, loginRole: 'murid', loginMode: 'login',
+  view: 'login', activeMissionId: null, adminTab: 'overview', teacherTab: 'overview',
+  selectedStudentId: null, m1Clues: [], m2Scene: 0, m2Clues: [], tempAudioUrl: null
+};
+
+function getCurrentUser(db = getDB()) { return db.users.find(u => u.id === state.currentUserId) || null; }
+function toast(msg, err = false) {
+  playSFX(err ? 'error' : 'click');
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.borderLeftColor = err ? '#ef4444' : '#22c55e'; el.style.display = 'block';
+  clearTimeout(window._tt); window._tt = setTimeout(() => el.style.display = 'none', 3200);
+}
+function calcLevel(xp) { return Math.floor(xp / 200) + 1; }
+function calcOverallScore(s) {
+  const p = s.progress;
+  const sc = [p.m1.score, p.m2.score, p.m3.score, p.m4.score, p.m5.rubricScore].filter(x => x > 0);
+  return sc.length ? Math.round(sc.reduce((a,b)=>a+b,0) / sc.length) : 0;
+}
+function getMasteryLevel(score) {
+  if (score >= 80) return { label: 'Cemerlang (TP 5-6)', cls: 'tag-green' };
+  if (score >= 60) return { label: 'Memuaskan (TP 3-4)', cls: 'tag-blue' };
+  if (score > 0) return { label: 'Perlu Bimbingan (TP 1-2)', cls: 'tag-red' };
+  return { label: 'Belum Dinilai', cls: 'tag-yellow' };
+}
+
+function computeAIGuide(student) {
+  const p = student.progress; const recs = []; let mode = 'Standard';
+  let nextStep = 'Teruskan penerokaan zon misi di Peta EcoWorld.';
+  if (!p.m1.completed) {
+    nextStep = 'Masuk ke Misi 1: Zon Sungai Tercemar dan cari 3 bukti pencemaran tersembunyi.';
+    recs.push('Dengar laporan Pak Mail untuk bezakan fakta tersurat dan tersirat.');
+  } else {
+    if (p.m1.tersiratScore < 70) {
+      mode = 'Pengukuhan (Mendengar & Tersirat)';
+      recs.push('Markah tersirat rendah (' + p.m1.tersiratScore + '%). Latihan Pengukuhan: Fokus pada sebab tersembunyi di sebalik tindakan pembuangan sisa waktu malam.');
+    } else recs.push('Penguasaan maklumat tersirat cemerlang (' + p.m1.tersiratScore + '%).');
+    if (p.m2.completed && p.m2.kbatScore < 70) {
+      mode = 'Pengukuhan (Analisis KBAT)';
+      recs.push('Gunakan penanda sebab-akibat semasa menerangkan kesan jangka panjang.');
+    } else if (p.m3.completed && calcOverallScore(student) >= 80) {
+      mode = 'Pengayaan (Cabaran KBAT Tinggi)';
+      recs.push('Cabaran Pengayaan: Bandingkan kesan jangka pendek & panjang dalam hujah anda di Misi 4.');
+    }
+    if (p.m3.completed && !p.m4.completed) nextStep = 'Seterusnya: Masuk Makmal Suara (Misi 4) dan rakam hujah anda.';
+    else if (p.m4.completed && !p.m5.submitted) nextStep = 'Seterusnya: Lancarkan Kempen Digital Selamatkan EcoWorld (Misi 5).';
+    else if (p.m5.submitted) nextStep = 'Tahniah! Layari Hall of Heroes untuk mencetak sijil anda.';
+  }
+  return { levelMode: mode, nextStep, recommendations: recs, needsIntervention: (p.m1.completed && p.m1.score < 60) || (calcOverallScore(student) > 0 && calcOverallScore(student) < 60) };
+}
+
+function evaluateBadges(s) {
+  const p = s.progress; const e = new Set(s.badges || []);
+  if (p.m1.completed && p.m1.score >= 70 && p.m2.completed && p.m2.score >= 70) e.add('eco_explorer');
+  if (p.m1.completed && p.m1.score >= 80) e.add('listening_detective');
+  if (p.m2.completed && p.m2.score >= 75 && p.m3.completed && p.m3.score >= 75) e.add('critical_thinker');
+  if (p.m4.completed && p.m4.score >= 70) e.add('brilliant_speaker');
+  if (p.m5.submitted && calcOverallScore(s) >= 70) e.add('eco_hero');
+  s.badges = Array.from(e);
+}
+
+/* ============================================================================
+   RENDER UTAMA & HUD
+   ============================================================================ */
+function renderApp() {
+  const db = getDB(); const user = getCurrentUser(db);
+  if (!user) { state.view = 'login'; renderLogin(db); return; }
+  document.getElementById('app').innerHTML = `
+    <header class="top-hud no-print">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="42" height="42" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="30" fill="#0ea5e9" stroke="#facc15" stroke-width="4"/>
+          <path d="M10 38 Q22 26 36 36 T56 32 L56 54 Q32 64 10 52 Z" fill="#15803d"/>
+          <circle cx="32" cy="22" r="7" fill="#facc15"/>
+        </svg>
+        <div>
+          <div class="game-font" style="color:#4ade80;font-size:1.1rem;">ECOWORLD: SUARA GENERASI PRIHATIN</div>
+          <div style="font-size:0.75rem;color:#94a3b8;">BM Tahun 6 • Mendengar & Bertutur (SK 1.2 / SP 1.2.2)</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <button class="btn-game btn-sm btn-outline" onclick="soundOn=!soundOn; renderApp()">${soundOn?'🔊 Bunyi ON':'🔇 Bunyi OFF'}</button>
+        <span class="tag ${user.role==='admin'?'tag-red':user.role==='guru'?'tag-blue':'tag-green'}">${user.role.toUpperCase()}</span>
+        <strong style="font-size:0.88rem;">${user.fullName}</strong>
+        ${user.role==='murid' ? `
+          <button class="btn-game btn-sm btn-blue" onclick="playSFX('click');goView('murid')">🪪 Profil Ejen</button>
+          <button class="btn-game btn-sm btn-gold" onclick="playSFX('click');goView('map')">🗺️ Peta EcoWorld</button>
+        ` : ''}
+        <button class="btn-game btn-sm btn-outline" onclick="openWheretoModal()">📘 WHERETO</button>
+        <button class="btn-game btn-sm btn-danger" onclick="logout()">🚪 Keluar</button>
+      </div>
+    </header>
+    <div class="container" id="main-content"></div>
+  `;
+  const main = document.getElementById('main-content');
+  if (state.view==='admin' && user.role==='admin') renderAdminDashboard(main, db);
+  else if (state.view==='guru' && user.role==='guru') renderTeacherDashboard(main, db);
+  else if (state.view==='murid' && user.role==='murid') renderStudentDashboard(main, db, user);
+  else if (state.view==='map' && user.role==='murid') renderAdventureMap(main, db, user);
+  else if (state.view==='mission' && user.role==='murid') renderMissionView(main, db, user);
+  else if (state.view==='heroes' && user.role==='murid') renderHallOfHeroes(main, db, user);
+  else { state.view = user.role; renderApp(); }
+}
+
+function goView(v) { state.view = v; renderApp(); }
+function logout() { state.currentUserId = null; state.view = 'login'; renderApp(); }
+
+/* ============================================================================
+   HALAMAN PERTAMA: LOG MASUK & PENDAFTARAN
+   ============================================================================ */
+function renderLogin(db) {
+  const r = state.loginRole, isReg = r==='murid' && state.loginMode==='register';
+  document.getElementById('app').innerHTML = `
+    <div class="container"><div class="login-wrapper">
+      <div style="color:#fff;">
+        <div style="display:inline-block;background:rgba(250,204,21,.2);border:1.5px solid #facc15;color:#fef08a;padding:6px 14px;border-radius:999px;font-weight:700;font-size:.86rem;margin-bottom:12px;">
+          🌍 "Jadilah Ejen Prihatin, Selamatkan Masa Depan Bumi!"
+        </div>
+        <h1 class="game-font" style="font-size:clamp(2rem,4vw,3rem);line-height:1.1;margin-bottom:12px;text-shadow:0 4px 16px rgba(0,0,0,.5);">
+          SUARA GENERASI <span style="color:#4ade80;">PRIHATIN</span>:<br>MISI MENYELAMATKAN BUMI
+        </h1>
+        <p style="color:#e2e8f0;line-height:1.6;margin-bottom:20px;">
+          Permainan pengembaraan Bahasa Melayu Tahun 6! Terokai 5 zon EcoWorld, selesaikan misteri pencemaran melalui laporan audio & visual, kumpul bukti ke dalam <em>Evidence Book</em>, bina hujah kritis dan lancarkan Kempen Digital anda!
+        </p>
+        <div class="grid-3" style="gap:10px;">
+          <div style="background:rgba(255,255,255,.1);padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.2);">
+            <div style="font-size:1.5rem;">🕵️</div><div class="game-font" style="color:#facc15;">Cari Bukti</div>
+            <div style="font-size:.78rem;color:#cbd5e1;">Klik petunjuk tersembunyi & dengar laporan</div>
+          </div>
+          <div style="background:rgba(255,255,255,.1);padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.2);">
+            <div style="font-size:1.5rem;">🎙️</div><div class="game-font" style="color:#4ade80;">Makmal Suara</div>
+            <div style="font-size:.78rem;color:#cbd5e1;">Rakam hujah kritis dengan intonasi tepat</div>
+          </div>
+          <div style="background:rgba(255,255,255,.1);padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.2);">
+            <div style="font-size:1.5rem;">🏆</div><div class="game-font" style="color:#38bdf8;">XP & Lencana</div>
+            <div style="font-size:.78rem;color:#cbd5e1;">Naik tahap & raih sijil Hall of Heroes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border:4px solid #facc15;">
+        <h2 class="game-font" style="text-align:center;color:#0f3d24;margin-bottom:4px;">PORTAL LOG MASUK ECOWORLD</h2>
+        <p style="text-align:center;font-size:.85rem;color:#64748b;margin-bottom:14px;">Pilih peranan anda untuk mula bermain</p>
+        <div class="role-tabs">
+          <div class="role-tab ${r==='admin'?'active':''}" onclick="state.loginRole='admin';state.loginMode='login';playSFX('click');renderLogin(getDB())">🛡️<br>ADMIN</div>
+          <div class="role-tab ${r==='guru'?'active':''}" onclick="state.loginRole='guru';state.loginMode='login';playSFX('click');renderLogin(getDB())">👨‍🚀<br>GURU</div>
+          <div class="role-tab ${r==='murid'?'active':''}" onclick="state.loginRole='murid';state.loginMode='login';playSFX('click');renderLogin(getDB())">🦸<br>MURID</div>
+        </div>
+
+        ${!isReg ? `
+          <form onsubmit="handleLogin(event)">
+            <div class="form-group"><label>Nama Pengguna (${r.toUpperCase()})</label>
+              <input id="login-user" class="form-control" required placeholder="${r==='admin'?'admin':r==='guru'?'cikgu_amina':'ali_ejen atau siti_ejen'}"></div>
+            <div class="form-group"><label>Kata Laluan</label>
+              <input id="login-pass" type="password" class="form-control" required placeholder="Masukkan kata laluan"></div>
+            <button type="submit" class="btn-game btn-primary" style="width:100%;font-size:1.08rem;">🚀 MASUK ECOWORLD</button>
+          </form>
+          ${r==='murid' ? `<div style="text-align:center;margin-top:12px;"><button class="btn-game btn-sm btn-gold" onclick="state.loginMode='register';renderLogin(getDB())">✨ Daftar Akaun Murid Baharu</button></div>` : ''}
+          <div style="margin-top:14px;background:#f1f5f9;padding:10px;border-radius:12px;font-size:.78rem;">
+            <strong>Akaun Ujian Pantas:</strong><br>
+            • Murid: <code>ali_ejen</code> / <code>murid123</code> (atau <code>siti_ejen</code>)<br>
+            • Guru: <code>cikgu_amina</code> / <code>guru123</code><br>
+            • Admin: <code>admin</code> / <code>admin123</code>
+          </div>
+        ` : `
+          <form onsubmit="handleRegisterStudent(event)">
+            <div class="form-group"><label>Nama Penuh</label><input id="reg-name" class="form-control" required></div>
+            <div class="grid-2" style="gap:8px;">
+              <div class="form-group"><label>ID Murid</label><input id="reg-sid" class="form-control" required placeholder="BM6-003"></div>
+              <div class="form-group"><label>Kelas</label><select id="reg-class" class="form-control">${db.classes.map(c=>`<option value="${c.name}">${c.name}</option>`).join('')}</select></div>
+            </div>
+            <div class="form-group"><label>Kod Kelas</label><input id="reg-code" class="form-control" required placeholder="6BESTARI atau 6CERDIK"></div>
+            <div class="grid-2" style="gap:8px;">
+              <div class="form-group"><label>Nama Pengguna</label><input id="reg-user" class="form-control" required></div>
+              <div class="form-group"><label>Kata Laluan</label><input id="reg-pass" type="password" class="form-control" required></div>
+            </div>
+            <button type="submit" class="btn-game btn-primary" style="width:100%;">✨ DAFTAR & MULA BERMAIN</button>
+            <button type="button" class="btn-game btn-sm btn-blue" style="width:100%;margin-top:8px;" onclick="state.loginMode='login';renderLogin(getDB())">← Kembali</button>
+          </form>
+        `}
+      </div>
+    </div></div>
+  `;
+}
+
+function handleLogin(e) {
+  e.preventDefault(); const db = getDB();
+  const u = document.getElementById('login-user').value.trim(), p = document.getElementById('login-pass').value;
+  const found = db.users.find(x => x.username===u && x.password===p && x.role===state.loginRole);
+  if (!found) return toast('Nama pengguna atau kata laluan salah!', true);
+  playSFX('xp'); state.currentUserId = found.id; state.view = found.role; renderApp();
+}
+
+function handleRegisterStudent(e) {
+  e.preventDefault(); const db = getDB();
+  const fullName = document.getElementById('reg-name').value.trim(), studentId = document.getElementById('reg-sid').value.trim();
+  const className = document.getElementById('reg-class').value, classCode = document.getElementById('reg-code').value.trim().toUpperCase();
+  const username = document.getElementById('reg-user').value.trim(), password = document.getElementById('reg-pass').value;
+  if (!db.classes.some(c => c.name===className && c.code.toUpperCase()===classCode)) return toast('Kod Kelas tidak sah!', true);
+  if (db.users.some(x => x.username===username)) return toast('Nama pengguna sudah wujud!', true);
+
+  const ns = {
+    id:'M'+Date.now(), role:'murid', username, password, fullName, studentId, className, classCode,
+    avatar:'rimba', xp:0, unlockedMission:1,
+    progress:{
+      m1:{completed:false,score:0,tersuratScore:0,tersiratScore:0,evidence:[]},
+      m2:{completed:false,score:0,kbatScore:0,thinkingMap:null,kbatAnswer:''},
+      m3:{completed:false,score:0,chosenOption:'',justification:''},
+      m4:{completed:false,score:0,argument:null,hasRecording:false},
+      m5:{completed:false,submitted:false,link:'',title:'',stepsDone:[],rubricScore:0,reflection:''}
+    },
+    badges:[], teacherFeedback:'Belum ada maklum balas guru.', aiApprovedByTeacher:false, peerFeedback:''
+  };
+  db.users.push(ns); addLog(db, fullName, 'Mendaftar sebagai Ejen Prihatin ('+className+')'); saveDB(db);
+  playSFX('win'); state.currentUserId = ns.id; state.view = 'murid'; renderApp();
+}
+
+/* ============================================================================
+   ADMIN & TEACHER DASHBOARDS
+   ============================================================================ */
+function renderAdminDashboard(c, db) {
+  const teachers = db.users.filter(u=>u.role==='guru'), students = db.users.filter(u=>u.role==='murid'), t = state.adminTab;
+  c.innerHTML = `<div class="hud-card">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+      <h2 class="game-font" style="color:#c084fc;">🛡️ ADMIN CONTROL CENTER</h2>
+      <button class="btn-game btn-sm btn-danger" onclick="localStorage.setItem('${STORAGE_KEY}',JSON.stringify(DEFAULT_DB));toast('Data direset.');renderApp()">🔄 Reset Data Demo</button>
+    </div>
+    <div class="nav-pills">
+      <button class="nav-pill ${t==='overview'?'active':''}" onclick="state.adminTab='overview';renderApp()">📊 Rekod</button>
+      <button class="nav-pill ${t==='teachers'?'active':''}" onclick="state.adminTab='teachers';renderApp()">👨‍🏫 Guru (${teachers.length})</button>
+      <button class="nav-pill ${t==='classes'?'active':''}" onclick="state.adminTab='classes';renderApp()">🏫 Kelas (${db.classes.length})</button>
+      <button class="nav-pill ${t==='students'?'active':''}" onclick="state.adminTab='students';renderApp()">🦸 Murid (${students.length})</button>
+      <button class="nav-pill ${t==='missions'?'active':''}" onclick="state.adminTab='missions';renderApp()">🎮 Misi & Sheets</button>
+    </div>
+    ${t==='overview' ? `
+      <div class="grid-4" style="margin-bottom:16px;">
+        <div class="stat-tile"><div class="lbl">Guru</div><div class="val">${teachers.length}</div></div>
+        <div class="stat-tile"><div class="lbl">Kelas</div><div class="val" style="color:#38bdf8">${db.classes.length}</div></div>
+        <div class="stat-tile"><div class="lbl">Murid</div><div class="val" style="color:#facc15">${students.length}</div></div>
+        <div class="stat-tile"><div class="lbl">Misi Aktif</div><div class="val">${db.missions.filter(m=>m.active).length}/5</div></div>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Masa</th><th>Pengguna</th><th>Aktiviti</th></tr></thead>
+      <tbody>${db.logs.map(l=>`<tr><td>${l.time}</td><td>${l.actor}</td><td>${l.action}</td></tr>`).join('')}</tbody></table></div>
+    ` : ''}
+    ${t==='teachers' ? `
+      <div class="grid-2">
+        <form onsubmit="adminAddTeacher(event)">
+          <div class="form-group"><label>Nama Guru</label><input id="adm-t-name" class="form-control" required></div>
+          <div class="form-group"><label>Username</label><input id="adm-t-user" class="form-control" required></div>
+          <div class="form-group"><label>Kata Laluan</label><input id="adm-t-pass" class="form-control" required value="guru123"></div>
+          <button class="btn-game btn-primary">+ Tambah Guru</button>
+        </form>
+        <table><thead><tr><th>Nama</th><th>Username</th><th></th></tr></thead><tbody>${teachers.map(x=>`<tr><td>${x.fullName}</td><td>${x.username}</td><td><button class="btn-game btn-sm btn-danger" onclick="adminDel('${x.id}')">Padam</button></td></tr>`).join('')}</tbody></table>
+      </div>
+    ` : ''}
+    ${t==='classes' ? `
+      <div class="grid-2">
+        <form onsubmit="adminAddClass(event)">
+          <div class="form-group"><label>Nama Kelas</label><input id="adm-c-name" class="form-control" required></div>
+          <div class="form-group"><label>Kod Kelas</label><input id="adm-c-code" class="form-control" required></div>
+          <button class="btn-game btn-blue">+ Tambah Kelas</button>
+        </form>
+        <table><thead><tr><th>Kelas</th><th>Kod</th><th></th></tr></thead><tbody>${db.classes.map(x=>`<tr><td>${x.name}</td><td><code>${x.code}</code></td><td><button class="btn-game btn-sm btn-danger" onclick="adminDelCls('${x.id}')">Padam</button></td></tr>`).join('')}</tbody></table>
+      </div>
+    ` : ''}
+    ${t==='students' ? `
+      <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nama</th><th>Kelas</th><th>XP</th><th></th></tr></thead>
+      <tbody>${students.map(s=>`<tr><td>${s.studentId}</td><td>${s.fullName}</td><td>${s.className}</td><td>${s.xp}</td><td><button class="btn-game btn-sm btn-danger" onclick="adminDel('${s.id}')">Padam</button></td></tr>`).join('')}</tbody></table></div>
+    ` : ''}
+    ${t==='missions' ? `
+      <div style="display:grid;gap:10px;margin-bottom:14px;">${db.missions.map((m,i)=>`
+        <div style="background:#0f172a;padding:12px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <span><strong>Misi ${m.id}:</strong> ${m.title}</span>
+          <label><input type="checkbox" ${m.active?'checked':''} onchange="upM(${i},this.checked)"> Aktif</label>
+        </div>`).join('')}</div>
+      <div class="form-group"><label>URL Web App Google Apps Script (Opsional untuk Sync Google Sheets)</label>
+        <div style="display:flex;gap:8px;"><input id="api-url" class="form-control" value="${db.apiEndpoint||''}" placeholder="https://script.google.com/macros/s/.../exec"><button class="btn-game btn-blue" onclick="saveApi()">Simpan</button></div>
+      </div>
+    ` : ''}
+  </div>`;
+}
+function adminAddTeacher(e){e.preventDefault();const db=getDB();db.users.push({id:'t'+Date.now(),role:'guru',fullName:document.getElementById('adm-t-name').value,username:document.getElementById('adm-t-user').value,password:document.getElementById('adm-t-pass').value});saveDB(db);toast('Guru ditambah!');renderApp();}
+function adminAddClass(e){e.preventDefault();const db=getDB();db.classes.push({id:'c'+Date.now(),name:document.getElementById('adm-c-name').value,code:document.getElementById('adm-c-code').value.toUpperCase()});saveDB(db);toast('Kelas ditambah!');renderApp();}
+function adminDel(id){const db=getDB();db.users=db.users.filter(u=>u.id!==id);saveDB(db);renderApp();}
+function adminDelCls(id){const db=getDB();db.classes=db.classes.filter(c=>c.id!==id);saveDB(db);renderApp();}
+function upM(i,v){const db=getDB();db.missions[i].active=v;saveDB(db);toast('Status misi dikemas kini.');}
+function saveApi(){const db=getDB();db.apiEndpoint=document.getElementById('api-url').value.trim();saveDB(db);toast('URL Sync disimpan.');}
+
+function renderTeacherDashboard(c, db) {
+  const students = db.users.filter(u=>u.role==='murid');
+  const active = students.filter(s=>s.xp>0).length;
+  const avg = students.length ? Math.round(students.reduce((a,s)=>a+calcOverallScore(s),0)/students.length) : 0;
+  const doneM = students.reduce((a,s)=>a+['m1','m2','m3','m4','m5'].filter(k=>s.progress[k].completed||s.progress[k].submitted).length,0);
+  const proj = students.filter(s=>s.progress.m5.submitted).length;
+  const sel = students.find(s=>s.id===state.selectedStudentId);
+
+  c.innerHTML = `<div class="hud-card" style="border-color:#0ea5e9;">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div><h2 class="game-font" style="color:#fff;font-size:1.7rem;">🚀 TEACHER MISSION CONTROL</h2><p style="color:#94a3b8;font-size:.86rem;">Memantau kemajuan sebenar setiap murid secara dinamik</p></div>
+      <div style="display:flex;gap:8px;">
+        <button class="nav-pill ${state.teacherTab==='overview'?'active':''}" onclick="state.teacherTab='overview';renderApp()">📋 Jadual Murid</button>
+        <button class="nav-pill ${state.teacherTab==='analytics'?'active':''}" onclick="state.teacherTab='analytics';renderApp()">📈 Analitik & Intervensi</button>
+      </div>
+    </div>
+    <div class="grid-5" style="margin-bottom:18px;">
+      <div class="stat-tile"><div class="lbl">Berdaftar</div><div class="val">${students.length}</div></div>
+      <div class="stat-tile"><div class="lbl">Aktif</div><div class="val" style="color:#38bdf8">${active}</div></div>
+      <div class="stat-tile"><div class="lbl">Purata Markah</div><div class="val" style="color:#facc15">${avg}%</div></div>
+      <div class="stat-tile"><div class="lbl">Misi Selesai</div><div class="val">${doneM}</div></div>
+      <div class="stat-tile"><div class="lbl">Projek PBL</div><div class="val" style="color:#c084fc">${proj}</div></div>
+    </div>
+    ${state.teacherTab==='overview' ? `
+      <div class="table-wrap" style="background:#0f172a;border-radius:14px;border:1px solid #334155;">
+        <table><thead><tr><th>Nama Murid</th><th>ID</th><th>Kelas</th><th>XP</th><th>Markah</th><th>Status</th><th>Penguasaan</th><th>Tindakan</th></tr></thead>
+        <tbody>${students.map(s=>{
+          const sc=calcOverallScore(s), m=getMasteryLevel(sc), ai=computeAIGuide(s);
+          return `<tr><td><strong>${s.fullName}</strong></td><td>${s.studentId}</td><td>${s.className}</td><td style="color:#facc15;font-weight:700">${s.xp}</td><td><strong>${sc}%</strong></td>
+          <td>${ai.needsIntervention?'<span class="tag tag-red">⚠️ Bimbingan</span>':'<span class="tag tag-green">✅ Baik</span>'}</td>
+          <td><span class="tag ${m.cls}">${m.label}</span></td>
+          <td><button class="btn-game btn-sm btn-blue" onclick="state.selectedStudentId='${s.id}';renderApp()">👁️ Profil</button></td></tr>`;
+        }).join('')}</tbody></table>
+      </div>
+      ${sel ? `
+        <div style="margin-top:18px;background:#0f172a;border:2px solid #facc15;border-radius:16px;padding:18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 class="game-font" style="color:#facc15;">📁 PROFIL: ${sel.fullName} (${sel.className})</h3>
+            <button class="btn-game btn-sm btn-outline" onclick="state.selectedStudentId=null;renderApp()">Tutup</button>
+          </div>
+          <div class="grid-3" style="margin-bottom:12px;">
+            <div class="stat-tile"><div class="lbl">Mendengar (M1)</div><div class="val" style="color:#38bdf8">${sel.progress.m1.score}%</div><div style="font-size:.76rem">Tersurat ${sel.progress.m1.tersuratScore}% • Tersirat ${sel.progress.m1.tersiratScore}%</div></div>
+            <div class="stat-tile"><div class="lbl">Bertutur (M4/M5)</div><div class="val" style="color:#4ade80">${sel.progress.m4.score||sel.progress.m5.rubricScore}%</div></div>
+            <div class="stat-tile"><div class="lbl">Lencana</div><div style="margin-top:6px;">${sel.badges.map(b=>BADGES_DEF.find(x=>x.id===b).icon).join(' ')||'Tiada lagi'}</div></div>
+          </div>
+          <div class="grid-2">
+            <div style="background:#1e293b;padding:14px;border-radius:12px;">
+              <strong style="color:#c084fc;">🤖 Cadangan AI (${computeAIGuide(sel).levelMode}):</strong>
+              <ul style="font-size:.82rem;padding-left:18px;margin:8px 0;">${computeAIGuide(sel).recommendations.map(r=>`<li>${r}</li>`).join('')}</ul>
+              <label style="font-size:.82rem;color:#4ade80;display:flex;gap:6px;align-items:center;">
+                <input type="checkbox" ${sel.aiApprovedByTeacher?'checked':''} onchange="approveAI('${sel.id}',this.checked)"> Guru sahkan cadangan AI ini
+              </label>
+            </div>
+            <div style="background:#1e293b;padding:14px;border-radius:12px;">
+              <strong style="color:#4ade80;">💬 Maklum Balas Guru:</strong>
+              <textarea id="t-fb" class="form-control" style="margin:8px 0;">${sel.teacherFeedback||''}</textarea>
+              <button class="btn-game btn-sm btn-primary" onclick="saveTFb('${sel.id}')">Simpan Maklum Balas</button>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+    ` : `
+      <div class="grid-2">
+        <div style="background:#0f172a;padding:18px;border-radius:14px;">
+          <h3 class="game-font" style="color:#38bdf8;margin-bottom:12px;">📊 Perbandingan Pencapaian (%)</h3>
+          ${students.map(s=>{const sc=calcOverallScore(s); return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:.84rem;"><span>${s.fullName}</span><strong>${sc}%</strong></div><div style="background:#1e293b;height:12px;border-radius:999px;"><div style="width:${sc}%;height:100%;background:${sc>=75?'#22c55e':sc>=60?'#38bdf8':'#ef4444'};border-radius:999px;"></div></div></div>`;}).join('')}
+        </div>
+        <div style="background:#0f172a;padding:18px;border-radius:14px;">
+          <h3 class="game-font" style="color:#fca5a5;margin-bottom:12px;">🚨 Murid Perlu Intervensi</h3>
+          ${students.filter(s=>computeAIGuide(s).needsIntervention).map(s=>`<div style="padding:8px 0;border-bottom:1px solid #334155;"><strong>${s.fullName}</strong> (${calcOverallScore(s)}%) — <button class="btn-game btn-sm btn-blue" onclick="state.teacherTab='overview';state.selectedStudentId='${s.id}';renderApp()">Semak</button></div>`).join('') || '<p style="color:#86efac;">Tiada murid kritikal.</p>'}
+        </div>
+      </div>
+    `}
+  </div>`;
+}
+function saveTFb(id){const db=getDB();db.users.find(u=>u.id===id).teacherFeedback=document.getElementById('t-fb').value;saveDB(db);toast('Maklum balas disimpan!');}
+function approveAI(id,v){const db=getDB();db.users.find(u=>u.id===id).aiApprovedByTeacher=v;saveDB(db);toast('Status AI dikemas kini.');}
+
+/* ============================================================================
+   STUDENT DASHBOARD & ECO WORLD ADVENTURE MAP
+   ============================================================================ */
+function renderStudentDashboard(c, db, user) {
+  const lvl = calcLevel(user.xp), xpIn = user.xp % 200, pct = Math.round(xpIn / 2);
+  const av = AVATARS.find(a=>a.id===user.avatar) || AVATARS[0], ai = computeAIGuide(user);
+  c.innerHTML = `
+    <div class="hud-card" style="border-color:#22c55e;margin-bottom:18px;">
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;">
+        <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;">
+          <div style="width:96px;height:96px;border-radius:24px;background:linear-gradient(135deg,#22c55e,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:3.6rem;border:4px solid #facc15;animation:pulseGlow 3s infinite;">${av.emoji}</div>
+          <div>
+            <span class="tag tag-yellow">TAHAP ${lvl}</span> <span class="tag tag-blue">${user.className}</span>
+            <h2 class="game-font" style="font-size:1.85rem;color:#fff;margin:4px 0;">${user.fullName}</h2>
+            <div style="font-size:.84rem;color:#cbd5e1;margin-bottom:4px;">XP: <strong style="color:#facc15;">${user.xp}</strong> (${xpIn}/200 ke Tahap ${lvl+1})</div>
+            <div class="xp-bar-wrap" style="width:260px;max-width:100%;"><div class="xp-bar-fill" style="width:${pct}%;"></div></div>
+            <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+              ${AVATARS.map(a=>`<button class="btn-game btn-sm ${user.avatar===a.id?'btn-gold':'btn-outline'}" onclick="setAv('${a.id}')">${a.emoji}</button>`).join('')}
+            </div>
+          </div>
+        </div>
+        <button class="btn-game btn-primary" style="font-size:1.25rem;padding:18px 28px;animation:pulseGlow 2.4s infinite;" onclick="playSFX('xp');goView('map')">🚀 START MISSION</button>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <h3 class="game-font" style="color:#0f3d24;margin-bottom:10px;">🏅 Lencana (${user.badges.length}/5)</h3>
+        <div style="display:grid;gap:8px;">${BADGES_DEF.map(b=>{const h=user.badges.includes(b.id);return `<div class="badge-chip ${h?'badge-earned':'badge-locked'}"><span style="font-size:1.3rem;">${b.icon}</span><div><div>${b.name} ${h?'✅':'🔒'}</div><div style="font-size:.7rem;font-weight:500;">${b.desc}</div></div></div>`;}).join('')}</div>
+      </div>
+      <div class="card">
+        <h3 class="game-font" style="color:#0369a1;margin-bottom:10px;">📊 Kemajuan Misi & Maklum Balas</h3>
+        <div style="display:grid;gap:8px;margin-bottom:12px;">${db.missions.map(m=>{const mp=user.progress['m'+m.id], done=mp.completed||mp.submitted; return `<div style="padding:9px 12px;border-radius:10px;background:#f8fafc;border:1.5px solid ${done?'#22c55e':'#cbd5e1'};display:flex;justify-content:space-between;"><span>${m.icon} Misi ${m.id}: ${m.title}</span><strong>${done?(m.id===5?mp.rubricScore:mp.score)+'%':m.id<=user.unlockedMission?'Sedia':'🔒'}</strong></div>`;}).join('')}</div>
+        <div style="background:#fefce8;border:1.5px solid #eab308;padding:10px;border-radius:12px;font-size:.85rem;"><strong>💬 Guru:</strong> ${user.teacherFeedback}</div>
+      </div>
+      <div class="hud-card" style="border-color:#c084fc;">
+        <h3 class="game-font" style="color:#e879f9;margin-bottom:8px;">🤖 AI MISSION GUIDE</h3>
+        <span class="tag tag-blue">${ai.levelMode}</span>
+        <p style="font-size:.86rem;margin:10px 0;"><strong>Langkah Seterusnya:</strong><br>${ai.nextStep}</p>
+        <ul style="font-size:.8rem;padding-left:16px;color:#cbd5e1;margin-bottom:10px;">${ai.recommendations.map(r=>`<li>${r}</li>`).join('')}</ul>
+        <div style="font-size:.75rem;color:${user.aiApprovedByTeacher?'#4ade80':'#facc15'};">${user.aiApprovedByTeacher?'✅ Disahkan Guru':'⏳ Menunggu semakan guru'}</div>
+      </div>
+    </div>
+  `;
+}
+function setAv(id){const db=getDB();getCurrentUser(db).avatar=id;saveDB(db);playSFX('click');renderApp();}
+
+function renderAdventureMap(c, db, user) {
+  const av = AVATARS.find(a=>a.id===user.avatar) || AVATARS[0];
+  c.innerHTML = `
+    <div class="map-board">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div>
+          <span class="tag tag-yellow">🗺️ DUNIA PENGEMBARAAN ECOWORLD</span>
+          <h2 class="game-font" style="font-size:1.9rem;color:#0f3d24;">PILIH ZON MISI ANDA</h2>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-game btn-blue" onclick="openEvidenceBook()">📖 Evidence Book (${user.progress.m1.evidence.length})</button>
+          <button class="btn-game btn-gold" onclick="goView('heroes')">🏆 Hall of Heroes</button>
+        </div>
+      </div>
+
+      <!-- Ilustrasi Laluan Peta SVG -->
+      <svg viewBox="0 0 1000 70" style="width:100%;height:50px;margin-top:10px;">
+        <path d="M 60 35 Q 200 5 350 35 T 650 35 T 940 35" fill="none" stroke="#fef08a" stroke-width="8" stroke-dasharray="14 10" stroke-linecap="round"/>
+      </svg>
+
+      <div class="map-nodes">
+        ${db.missions.map(m => {
+          const mp = user.progress['m'+m.id], done = mp.completed||mp.submitted, open = m.id<=user.unlockedMission && m.active;
+          const isCurrent = m.id === Math.min(user.unlockedMission, 5);
+          return `
+            <div class="zone-card ${done?'completed':open?'unlocked':'locked'}" onclick="${open?`startMission(${m.id})`:`toast('Selesaikan Misi ${m.id-1} dahulu!',true)`}">
+              ${isCurrent ? `<div class="avatar-pin">${av.emoji} Di Sini</div>` : ''}
+              <div>
+                <div style="font-size:.76rem;font-weight:800;color:#475569;">MISI ${m.id} • +${m.maxXp} XP</div>
+                <div style="font-size:2.8rem;margin:6px 0;animation:bob 3s infinite;">${m.icon}</div>
+                <h3 class="game-font" style="font-size:1.1rem;color:#0f172a;margin-bottom:4px;">${m.title}</h3>
+                <p style="font-size:.78rem;color:#475569;margin-bottom:10px;">${m.focus}</p>
+              </div>
+              <span class="btn-game btn-sm ${done?'btn-gold':open?'btn-primary':''}" style="width:100%;${!open?'background:#cbd5e1;color:#475569;':''}">
+                ${done ? `✅ Selesai (${m.id===5?mp.rubricScore:mp.score}%)` : open ? '▶ Mula Misi' : '🔒 Terkunci'}
+              </span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function startMission(id) { playSFX('click'); state.activeMissionId = id; state.view = 'mission'; renderApp(); }
+
+/* ============================================================================
+   5 MISI PEMBELAJARAN INTERAKTIF (DENGAN ADEGAN PENYIASATAN & PERMAINAN)
+   ============================================================================ */
+function renderMissionView(c, db, user) {
+  const id = state.activeMissionId;
+  const back = `<button class="btn-game btn-sm btn-outline" style="margin-bottom:12px;" onclick="playSFX('click');goView('map')">← Kembali ke Peta EcoWorld</button>`;
+  if (id===1) renderMission1(c, user, back);
+  else if (id===2) renderMission2(c, user, back);
+  else if (id===3) renderMission3(c, user, back);
+  else if (id===4) renderMission4(c, user, back);
+  else if (id===5) renderMission5(c, user, back);
+}
+
+/* --- MISI 1: ADEGAN PENYIASATAN SUNGAI + AUDIO PAK MAIL --- */
+const M1_SCRIPT = "Selamat sejahtera Ejen Prihatin! Saya Pak Mail dari Kampung Sungai Jernih. Sejak bulan lalu, air sungai kami bertukar hitam pekat dan berbau busuk selepas waktu tengah malam. Ratusan ekor ikan mati terapung. Kami mengesyaki kilang tekstil di hulu sungai membuang sisa kimia secara senyap ketika penduduk tidur agar perbuatan mereka tidak dapat dikesan.";
+
+function renderMission1(c, user, back) {
+  const f = state.m1Clues;
+  c.innerHTML = back + `<div class="card">
+    <span class="tag tag-blue">MISI 1 • PENYIASATAN & KEMAHIRAN MENDENGAR</span>
+    <h2 class="game-font" style="font-size:1.8rem;color:#0369a1;margin-bottom:10px;">🌊 ZON SUNGAI TERCEMAR</h2>
+
+    <!-- Adegan Permainan Interaktif: Klik 3 Bukti di Sungai -->
+    <div class="scene-stage" style="height:210px;background:linear-gradient(180deg,#7dd3fc 0%,#bae6fd 45%,#334155 45%,#1e293b 100%);">
+      <div style="position:absolute;top:10px;left:14px;background:rgba(15,23,42,.85);color:#facc15;padding:5px 12px;border-radius:10px;font-size:.82rem;font-weight:700;">
+        🔍 MISI SAMPINGAN: Klik 3 petunjuk pencemaran pada adegan sungai! (${f.length}/3 ditemui)
+      </div>
+      <div style="position:absolute;bottom:68px;left:5%;font-size:3.2rem;">🏭</div>
+      <div style="position:absolute;bottom:20px;width:100%;height:55px;background:linear-gradient(90deg,#1e293b,#0f172a);opacity:.85;"></div>
+      <button type="button" class="hotspot-btn ${f.includes('paip')?'found':''}" style="top:105px;left:14%;" onclick="collectM1Clue('paip','Paip kilang menyalurkan cecair hitam waktu malam')">
+        ${f.includes('paip')?'✅ Paip Sisa':'🛢️ Sisa Kimia'}
+      </button>
+      <button type="button" class="hotspot-btn ${f.includes('ikan')?'found':''}" style="top:138px;left:46%;" onclick="collectM1Clue('ikan','Ratusan ikan mati terapung di permukaan sungai')">
+        ${f.includes('ikan')?'✅ Ikan Mati':'🐟 Ikan Terapung'}
+      </button>
+      <button type="button" class="hotspot-btn ${f.includes('bau')?'found':''}" style="top:96px;left:72%;" onclick="collectM1Clue('bau','Air hitam berbau busuk menjejaskan nelayan')">
+        ${f.includes('bau')?'✅ Air Busuk':'🤢 Bau Busuk'}
+      </button>
+    </div>
+
+    <div class="npc-bubble">
+      <div style="font-size:3rem;">👴🏽</div>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center;">
+          <strong class="game-font" style="color:#38bdf8;font-size:1.1rem;">Pak Mail (Wakil Penduduk Kampung)</strong>
+          <div class="wave-bars" id="m1-waves"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
+          <div>
+            <button type="button" class="btn-game btn-sm btn-primary" onclick="playM1Audio()">▶ Dengar Laporan</button>
+            <button type="button" class="btn-game btn-sm btn-danger" onclick="stopM1Audio()">⏹ Henti</button>
+          </div>
+        </div>
+        <details style="margin-top:8px;">
+          <summary style="cursor:pointer;font-size:.82rem;color:#facc15;">📄 Baca transkrip audio (jika pelayar tanpa suara)</summary>
+          <p style="font-size:.86rem;color:#e2e8f0;margin-top:6px;">"${M1_SCRIPT}"</p>
+        </details>
+      </div>
+    </div>
+
+    <form onsubmit="submitMission1(event)">
+      <div class="grid-2">
+        <div class="form-group"><label>1. (Tersurat) Apakah warna dan bau air sungai?</label>
+          <select id="m1-q1" class="form-control"><option value="a">Jernih dan wangi</option><option value="b">Hitam pekat dan berbau busuk</option></select></div>
+        <div class="form-group"><label>2. (Tersurat) Bilakah pencemaran sering berlaku?</label>
+          <select id="m1-q2" class="form-control"><option value="a">Selepas waktu tengah malam</option><option value="b">Waktu pagi sebelum subuh</option></select></div>
+      </div>
+      <div class="form-group"><label>3. (Tersirat) Mengapakah kilang memilih waktu tengah malam untuk membuang sisa?</label>
+        <textarea id="m1-q3" class="form-control" required placeholder="Tulis inferens / maksud tersirat anda..."></textarea></div>
+      <div class="form-group"><label>4. Bukti Terkumpul untuk Evidence Book:</label>
+        <input id="m1-ev" class="form-control" required value="${state.m1Clues.length ? 'Ditemui '+state.m1Clues.length+' bukti di sungai (Paip sisa kimia & ikan mati)' : ''}" placeholder="Klik 3 petunjuk di atas atau tulis bukti..."></div>
+      <button type="submit" class="btn-game btn-primary">🔍 Hantar Laporan & Buka Zon Seterusnya</button>
+    </form>
+  </div>`;
+}
+function collectM1Clue(k, text) {
+  if (!state.m1Clues.includes(k)) { state.m1Clues.push(k); playSFX('xp'); toast('Bukti ditemui: ' + text); renderApp(); }
+}
+function playM1Audio() {
+  if (!('speechSynthesis' in window)) return toast('Sila buka transkrip audio.', true);
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(M1_SCRIPT); u.lang = 'ms-MY'; u.rate = 0.95;
+  const w = document.getElementById('m1-waves');
+  u.onstart = () => w && w.classList.add('playing'); u.onend = () => w && w.classList.remove('playing');
+  window.speechSynthesis.speak(u); w && w.classList.add('playing');
+}
+function stopM1Audio() { window.speechSynthesis && window.speechSynthesis.cancel(); document.getElementById('m1-waves')?.classList.remove('playing'); }
+
+function submitMission1(e) {
+  e.preventDefault(); stopM1Audio();
+  const q1 = document.getElementById('m1-q1').value, q2 = document.getElementById('m1-q2').value;
+  const q3 = document.getElementById('m1-q3').value.toLowerCase(), ev = document.getElementById('m1-ev').value.trim();
+  const tersurat = (q1==='b'?50:0) + (q2==='a'?50:0);
+  const kw = ['sembunyi','tidur','kesan','tangkap','rahsia','elak','penguat','nampak','senyap'];
+  const tersirat = (kw.some(k=>q3.includes(k)) && q3.length>15) ? 90 : q3.length>20 ? 70 : 40;
+  const bonus = state.m1Clues.length >= 3 ? 10 : 0;
+  const total = Math.min(100, Math.round((tersurat + tersirat)/2) + bonus);
+
+  const db = getDB(); const user = getCurrentUser(db); const first = !user.progress.m1.completed;
+  user.progress.m1 = { completed:true, score:total, tersuratScore:tersurat, tersiratScore:tersirat, evidence:Array.from(new Set([...user.progress.m1.evidence, ev])) };
+  if (first) user.xp += 150;
+  if (user.unlockedMission < 2) user.unlockedMission = 2;
+  evaluateBadges(user); addLog(db, user.fullName, `Menyelesaikan Misi 1 (${total}%)`); saveDB(db);
+  playSFX('win'); showMissionCompleteModal(1, total, first?150:0, `Tersurat: ${tersurat}% | Tersirat: ${tersirat}%. Bukti disimpan dalam Evidence Book!`);
+}
+
+/* --- MISI 2: BANDAR UDARA BERACUN --- */
+const M2_SCENES = [
+  { icon:'🏭💨', title:'Babak 1: Cerobong Asap Tanpa Penapis', text:'Kilang melepaskan gas sulfur dioksida ke udara tanpa sistem penapisan.' },
+  { icon:'🚗🔥', title:'Babak 2: Kenderaan & Pembakaran Terbuka', text:'Asap kenderaan dan pembakaran sampah membentuk jerebu tebal.' },
+  { icon:'😷🌳', title:'Babak 3: Kesan Kepada Manusia & Hutan', text:'Penduduk sesak nafas manakala pokok layu akibat hujan asid.' }
+];
+function renderMission2(c, user, back) {
+  const sc = M2_SCENES[state.m2Scene];
+  c.innerHTML = back + `<div class="card">
+    <span class="tag tag-blue">MISI 2 • ANALISIS PUNCA & KESAN</span>
+    <h2 class="game-font" style="font-size:1.8rem;color:#0f172a;margin-bottom:10px;">🏭 BANDAR UDARA BERACUN</h2>
+    <div class="media-box" style="text-align:center;">
+      <div style="font-size:.78rem;color:#facc15;font-weight:700;">🎬 TAKLIMAT VISUAL PENCEMARAN UDARA</div>
+      <div style="font-size:3.8rem;margin:8px 0;animation:bob 2s infinite;">${sc.icon}</div>
+      <h3 class="game-font" style="color:#38bdf8;">${sc.title}</h3>
+      <p style="font-size:.92rem;color:#e2e8f0;margin:6px auto 12px;max-width:580px;">${sc.text}</p>
+      <div style="display:flex;justify-content:center;gap:8px;">
+        ${M2_SCENES.map((_,i)=>`<button type="button" class="btn-game btn-sm ${state.m2Scene===i?'btn-gold':'btn-outline'}" onclick="playSFX('click');state.m2Scene=${i};renderApp()">Babak ${i+1}</button>`).join('')}
+      </div>
+    </div>
+    <form onsubmit="submitMission2(event)">
+      <div class="grid-2">
+        <div class="form-group"><label>Padanan A: Asap kenderaan bermotor & jerebu</label>
+          <select id="m2-a" class="form-control"><option value="ok">Menyebabkan masalah pernafasan & asma</option><option value="no">Menyebabkan air laut menjadi masin</option></select></div>
+        <div class="form-group"><label>Padanan B: Gas sulfur dioksida daripada kilang</label>
+          <select id="m2-b" class="form-control"><option value="no">Menyuburkan tanaman sayuran</option><option value="ok">Membentuk hujan asid yang merosakkan tumbuhan</option></select></div>
+      </div>
+      <h3 class="game-font" style="color:#15803d;margin:8px 0;">Peta Pemikiran Digital & Soalan KBAT</h3>
+      <div class="grid-2">
+        <div class="form-group"><label>Punca Pencemaran Udara</label><input id="m2-punca" class="form-control" required placeholder="Contoh: Asap kilang & pembakaran terbuka"></div>
+        <div class="form-group"><label>Kesan Terhadap Alam & Manusia</label><input id="m2-kesan" class="form-control" required placeholder="Contoh: Jerebu, asma & hujan asid"></div>
+      </div>
+      <div class="form-group"><label>Soalan KBAT: Apakah kesan terhadap murid sekolah jika udara kekal beracun selama 6 bulan?</label>
+        <textarea id="m2-kbat" class="form-control" required placeholder="Huraikan ramalan kritis anda..."></textarea></div>
+      <button type="submit" class="btn-game btn-primary">📊 Lengkapkan Analisis Bandar</button>
+    </form>
+  </div>`;
+}
+function submitMission2(e) {
+  e.preventDefault();
+  const match = (document.getElementById('m2-a').value==='ok'?50:0) + (document.getElementById('m2-b').value==='ok'?50:0);
+  const punca = document.getElementById('m2-punca').value.trim(), kesan = document.getElementById('m2-kesan').value.trim();
+  const kbat = document.getElementById('m2-kbat').value.trim();
+  const kbatScore = kbat.length>=30 ? 90 : kbat.length>=15 ? 70 : 50;
+  const total = Math.round((match + kbatScore)/2);
+
+  const db = getDB(); const user = getCurrentUser(db); const first = !user.progress.m2.completed;
+  user.progress.m2 = { completed:true, score:total, kbatScore, thinkingMap:{punca, kesan}, kbatAnswer:kbat };
+  if (first) user.xp += 180;
+  if (user.unlockedMission < 3) user.unlockedMission = 3;
+  evaluateBadges(user); addLog(db, user.fullName, `Menyelesaikan Misi 2 (${total}%)`); saveDB(db);
+  playSFX('win'); showMissionCompleteModal(2, total, first?180:0, 'Analisis Punca-Kesan & Peta Pemikiran berjaya disimpan!');
+}
+
+/* --- MISI 3: HUTAN HARAPAN --- */
+const M3_OPTS = [
+  { id:'o1', t:'Pilihan A: Tutup Semua Kilang Serta-Merta', p:'Udara pulih pantas.', c:'Ramai pekerja hilang punca pendapatan.' },
+  { id:'o2', t:'Pilihan B: Wajibkan Penapis Asap + Tanam Semula Hutan & Pengangkutan Hijau', p:'Mengawal punca pencemaran secara mampan.', c:'Perlukan kerjasama semua pihak.' },
+  { id:'o3', t:'Pilihan C: Edar Topeng Muka Percuma Sahaja', p:'Murah dan mudah.', c:'Tidak menghapuskan punca pencemaran.' }
+];
+function renderMission3(c, user, back) {
+  c.innerHTML = back + `<div class="card">
+    <span class="tag tag-green">MISI 3 • MENILAI CADANGAN PENYELESAIAN</span>
+    <h2 class="game-font" style="font-size:1.8rem;color:#15803d;margin-bottom:10px;">🌳 HUTAN HARAPAN</h2>
+    <div class="grid-3" style="margin-bottom:16px;">
+      ${M3_OPTS.map(o=>`<div style="background:#f8fafc;border:2px solid #cbd5e1;border-radius:16px;padding:14px;">
+        <h4 class="game-font" style="color:#0f3d24;margin-bottom:6px;">${o.t}</h4>
+        <p style="font-size:.82rem;color:#15803d;">✅ ${o.p}</p>
+        <p style="font-size:.82rem;color:#b91c1c;margin-top:4px;">⚠️ ${o.c}</p>
+      </div>`).join('')}
+    </div>
+    <form onsubmit="submitMission3(event)">
+      <div class="form-group"><label>Pilih Penyelesaian Paling Seimbang:</label>
+        <select id="m3-c" class="form-control">${M3_OPTS.map(o=>`<option value="${o.id}">${o.t}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Justifikasi & Alasan Anda:</label>
+        <textarea id="m3-j" class="form-control" required placeholder="Pada pendapat saya, cadangan ini paling berkesan kerana..."></textarea></div>
+      <button type="submit" class="btn-game btn-primary">🌿 Sahkan Justifikasi</button>
+    </form>
+  </div>`;
+}
+function submitMission3(e) {
+  e.preventDefault();
+  const ch = document.getElementById('m3-c').value, j = document.getElementById('m3-j').value.trim();
+  const total = (ch==='o2'?60:30) + (j.length>=25?40:20);
+  const db = getDB(); const user = getCurrentUser(db); const first = !user.progress.m3.completed;
+  user.progress.m3 = { completed:true, score:total, chosenOption:M3_OPTS.find(x=>x.id===ch).t, justification:j };
+  if (first) user.xp += 180;
+  if (user.unlockedMission < 4) user.unlockedMission = 4;
+  evaluateBadges(user); addLog(db, user.fullName, `Menyelesaikan Misi 3 (${total}%)`); saveDB(db);
+  playSFX('win'); showMissionCompleteModal(3, total, first?180:0, ch==='o2'?'Tepat! Penyelesaian mampan menjaga alam & ekonomi.':'Jawapan direkodkan. Pertimbangkan keseimbangan ekonomi & alam sekitar.');
+}
+
+/* --- MISI 4: MAKMAL SUARA (PEMBINA HUJAH & RAKAMAN MIKROFON) --- */
+let mRec = null, aChunks = [];
+function renderMission4(c, user, back) {
+  const arg = user.progress.m4.argument || { pendirian:'', bukti:'', huraian:'', kesimpulan:'' };
+  c.innerHTML = back + `<div class="card">
+    <span class="tag tag-yellow">MISI 4 • MEMBINA HUJAH & BERTUTUR (SP 1.2.2)</span>
+    <h2 class="game-font" style="font-size:1.8rem;color:#0f172a;margin-bottom:10px;">🎙️ MAKMAL SUARA</h2>
+    <div style="background:#eff6ff;border:2px solid #38bdf8;border-radius:14px;padding:12px;margin-bottom:14px;font-size:.84rem;">
+      <strong>🗣️ Panduan Bertutur:</strong> Sebutan baku jelas • Intonasi bersemangat pada isi penting • Gunakan penanda wacana (<em>Buktinya, Oleh itu, Tegasnya</em>).
+    </div>
+    <form onsubmit="submitMission4(event)">
+      <div class="grid-2">
+        <div class="form-group"><label>1. Pendirian</label><input id="m4-p" class="form-control" required value="${arg.pendirian}" placeholder="Saya berpendapat pencemaran di EcoWorld mesti dihentikan segera..."></div>
+        <div class="form-group"><label>2. Bukti Tersurat & Tersirat</label><input id="m4-b" class="form-control" required value="${arg.bukti}" placeholder="Buktinya, laporan Pak Mail mendedahkan pembuangan sisa waktu malam..."></div>
+        <div class="form-group"><label>3. Huraian Kritis & Cadangan</label><input id="m4-h" class="form-control" required value="${arg.huraian}" placeholder="Oleh itu, pemasangan penapis asap dan penguatkuasaan undang-undang..."></div>
+        <div class="form-group"><label>4. Kesimpulan / Seruan</label><input id="m4-k" class="form-control" required value="${arg.kesimpulan}" placeholder="Tegasnya, marilah kita bersama-sama menyelamatkan bumi!"></div>
+      </div>
+      <div class="media-box">
+        <strong class="game-font" style="color:#4ade80;">🎙️ Perakam Suara Hujah</strong>
+        <p style="font-size:.82rem;color:#cbd5e1;margin:4px 0 10px;">Baca hujah di atas dengan suara yang jelas dan intonasi meyakinkan:</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button type="button" class="btn-game btn-sm btn-primary" id="rec-start" onclick="startRec()">🔴 Mula Rakam</button>
+          <button type="button" class="btn-game btn-sm btn-danger" id="rec-stop" onclick="stopRec()" disabled>⏹ Henti</button>
+          <span id="rec-msg" style="font-size:.82rem;color:#facc15;">Sedia</span>
+        </div>
+        <div id="rec-play" style="margin-top:10px;">${state.tempAudioUrl?`<audio controls src="${state.tempAudioUrl}" style="width:100%"></audio>`:''}</div>
+      </div>
+      <div class="form-group"><label>Semakan Kendiri / Rakan Sebaya:</label>
+        <input id="m4-peer" class="form-control" value="${user.peerFeedback||''}" placeholder="Sebutan jelas dan intonasi saya semakin baik..."></div>
+      <button type="submit" class="btn-game btn-gold">🎙️ Simpan Hujah & Buka Misi Akhir</button>
+    </form>
+  </div>`;
+}
+async function startRec() {
+  try {
+    const st = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mRec = new MediaRecorder(st); aChunks = [];
+    mRec.ondataavailable = e => aChunks.push(e.data);
+    mRec.onstop = () => {
+      state.tempAudioUrl = URL.createObjectURL(new Blob(aChunks, { type:'audio/webm' }));
+      document.getElementById('rec-play').innerHTML = `<audio controls src="${state.tempAudioUrl}" style="width:100%"></audio>`;
+      st.getTracks().forEach(t=>t.stop());
+    };
+    mRec.start(); document.getElementById('rec-start').disabled=true; document.getElementById('rec-stop').disabled=false;
+    document.getElementById('rec-msg').textContent = '🔴 Sedang merakam suara anda...';
+  } catch(e) { toast('Mikrofon disekat/tiada. Anda masih boleh berlatih secara lisan.', true); }
+}
+function stopRec() { if(mRec && mRec.state!=='inactive'){ mRec.stop(); document.getElementById('rec-start').disabled=false; document.getElementById('rec-stop').disabled=true; document.getElementById('rec-msg').textContent='✅ Rakaman siap!'; } }
+function submitMission4(e) {
+  e.preventDefault();
+  const arg = { pendirian:document.getElementById('m4-p').value, bukti:document.getElementById('m4-b').value, huraian:document.getElementById('m4-h').value, kesimpulan:document.getElementById('m4-k').value };
+  const peer = document.getElementById('m4-peer').value, hasRec = Boolean(state.tempAudioUrl);
+  const score = Math.min(100, 75 + (hasRec?15:5) + (peer.length>5?10:0));
+  const db = getDB(); const user = getCurrentUser(db); const first = !user.progress.m4.completed;
+  user.progress.m4 = { completed:true, score, argument:arg, hasRecording:hasRec||user.progress.m4.hasRecording }; user.peerFeedback = peer;
+  if (first) user.xp += 220;
+  if (user.unlockedMission < 5) user.unlockedMission = 5;
+  evaluateBadges(user); addLog(db, user.fullName, `Menyiapkan Makmal Suara (${score}%)`); saveDB(db);
+  playSFX('win'); showMissionCompleteModal(4, score, first?220:0, 'Hujah mantap! Misi Kemuncak PBL kini dibuka.');
+}
+
+/* --- MISI 5: OPERASI SELAMATKAN ECOWORLD (PBL) --- */
+const PBL_STEPS = ['1. Pilih isu','2. Kumpul bukti','3. Analisis punca-kesan','4. Bina hujah','5. Rancang skrip','6. Rakam audio/video','7. Bentang kempen','8. Terima maklum balas','9. Penambahbaikan'];
+function renderMission5(c, user, back) {
+  const m5 = user.progress.m5;
+  c.innerHTML = back + `<div class="card" style="border:4px solid #eab308;">
+    <span class="tag tag-yellow">MISI 5 • PROJEK AKHIR PBL</span>
+    <h2 class="game-font" style="font-size:1.85rem;color:#0f3d24;">🌍 KEMPEN DIGITAL: SELAMATKAN ECOWORLD!</h2>
+    <div style="background:#fefce8;border-left:5px solid #eab308;padding:12px;border-radius:10px;margin:10px 0 16px;">
+      <strong>❓ Driving Question:</strong> <em>"Bagaimanakah kita boleh meyakinkan masyarakat untuk mengambil tindakan terhadap masalah alam sekitar?"</em>
+    </div>
+    <form onsubmit="submitMission5(event)">
+      <div class="grid-3" style="background:#f8fafc;padding:12px;border-radius:12px;margin-bottom:14px;">
+        ${PBL_STEPS.map((st,i)=>`<label style="font-size:.82rem;"><input type="checkbox" class="pbl-chk" value="${i}" ${(m5.stepsDone||[]).includes(i)?'checked':''}> ${st}</label>`).join('')}
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label>Tajuk Kempen Audio / Video</label><input id="m5-t" class="form-control" required value="${m5.title||''}" placeholder="Selamatkan Sungai Kita"></div>
+        <div class="form-group"><label>Pautan Fail / Video / Audio</label><input id="m5-l" class="form-control" required value="${m5.link||''}" placeholder="https://drive.google.com/..."></div>
+      </div>
+      <div class="form-group"><label>Anggaran Skor Rubrik Kendiri (50-100)</label><input type="number" min="50" max="100" id="m5-s" class="form-control" value="${m5.rubricScore||85}" required></div>
+      <div class="form-group"><label>Refleksi Pembelajaran:</label><textarea id="m5-r" class="form-control" required placeholder="Apakah yang anda pelajari melalui misi EcoWorld ini?">${m5.reflection||''}</textarea></div>
+      <button type="submit" class="btn-game btn-gold" style="font-size:1.1rem;">🚀 HANTAR KEMPEN DIGITAL!</button>
+    </form>
+  </div>`;
+}
+function submitMission5(e) {
+  e.preventDefault();
+  const stepsDone = Array.from(document.querySelectorAll('.pbl-chk:checked')).map(x=>Number(x.value));
+  const title=document.getElementById('m5-t').value, link=document.getElementById('m5-l').value, rubricScore=Number(document.getElementById('m5-s').value), reflection=document.getElementById('m5-r').value;
+  const db=getDB(); const user=getCurrentUser(db); const first=!user.progress.m5.submitted;
+  user.progress.m5 = { completed:true, submitted:true, title, link, stepsDone, rubricScore, reflection };
+  if (first) user.xp += 300;
+  evaluateBadges(user); addLog(db, user.fullName, `Menghantar Kempen Digital: ${title}`); saveDB(db);
+  playSFX('win'); showMissionCompleteModal(5, rubricScore, first?300:0, 'TAHNIAH! EcoWorld berjaya diselamatkan. Lawati Hall of Heroes untuk sijil anda!');
+}
+
+/* ============================================================================
+   HALL OF HEROES & MODALS
+   ============================================================================ */
+function renderHallOfHeroes(c, db, user) {
+  const ov = calcOverallScore(user);
+  c.innerHTML = `
+    <div class="card cert-printable" style="text-align:center;border:6px double #eab308;background:linear-gradient(180deg,#fefce8,#fff);padding:32px;">
+      <div style="font-size:3.5rem;animation:bob 2s infinite;">🏆🌍✨</div>
+      <h1 class="game-font" style="font-size:2.3rem;color:#0f3d24;margin:8px 0;">TAHNIAH, EJEN PRIHATIN!</h1>
+      <p style="color:#475569;">Sijil Pengiktirafan Penyelamat Dunia EcoWorld (Bahasa Melayu Tahun 6)</p>
+      <div style="border-top:2px dashed #cbd5e1;border-bottom:2px dashed #cbd5e1;padding:16px;margin:16px auto;max-width:600px;">
+        <h2 class="game-font" style="font-size:2rem;color:#0369a1;">${user.fullName}</h2>
+        <div>Kelas: <strong>${user.className}</strong> • ID: <strong>${user.studentId}</strong></div>
+      </div>
+      <div class="grid-4" style="margin:18px 0;">
+        <div class="stat-tile"><div class="lbl">Jumlah XP</div><div class="val" style="color:#facc15">${user.xp}</div></div>
+        <div class="stat-tile"><div class="lbl">Tahap</div><div class="val">Lv.${calcLevel(user.xp)}</div></div>
+        <div class="stat-tile"><div class="lbl">Purata Skor</div><div class="val" style="color:#38bdf8">${ov}%</div></div>
+        <div class="stat-tile"><div class="lbl">Projek PBL</div><div class="val" style="font-size:1.1rem;padding-top:8px;">${user.progress.m5.submitted?'✅ Selesai':'⏳ Belum'}</div></div>
+      </div>
+      <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:18px;">
+        ${user.badges.map(bId=>{const b=BADGES_DEF.find(x=>x.id===bId);return `<span class="badge-chip badge-earned">${b.icon} ${b.name}</span>`;}).join('') || '<span>Teruskan mengumpul lencana!</span>'}
+      </div>
+      <div class="no-print" style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+        <button class="btn-game btn-primary" onclick="window.print()">🖨️ Cetak / Simpan PDF Sijil</button>
+        <button class="btn-game btn-blue" onclick="goView('map')">🗺️ Kembali ke Peta</button>
+      </div>
+    </div>
+  `;
+}
+
+function showMissionCompleteModal(id, score, xp, msg) {
+  document.getElementById('modal-root').innerHTML = `<div class="modal-backdrop"><div class="modal-box" style="text-align:center;">
+    <div style="font-size:4rem;animation:bob 1.5s infinite;">🎉🏅</div>
+    <h2 class="game-font" style="font-size:2rem;color:#15803d;">MISI ${id} SELESAI!</h2>
+    <p style="font-size:1.1rem;font-weight:700;color:#0369a1;margin:6px 0;">Markah: ${score}% | Ganjaran: +${xp} XP</p>
+    <p style="color:#475569;margin:12px 0 20px;">${msg}</p>
+    <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+      <button class="btn-game btn-primary" onclick="closeModal();goView('map')">🗺️ Peta EcoWorld</button>
+      <button class="btn-game btn-gold" onclick="closeModal();goView('murid')">🪪 Profil Ejen</button>
+    </div>
+  </div></div>`;
+}
+function openEvidenceBook() {
+  const u = getCurrentUser();
+  document.getElementById('modal-root').innerHTML = `<div class="modal-backdrop"><div class="modal-box">
+    <h2 class="game-font" style="color:#0369a1;margin-bottom:10px;">📖 EVIDENCE BOOK: ${u.fullName}</h2>
+    <strong>Bukti Sungai Tercemar (Misi 1):</strong>
+    <ul style="padding-left:20px;margin:6px 0 14px;">${u.progress.m1.evidence.map(x=>`<li>${x}</li>`).join('')||'<li>Belum ada bukti.</li>'}</ul>
+    <strong>Peta Pemikiran Udara Beracun (Misi 2):</strong>
+    <p style="background:#f1f5f9;padding:10px;border-radius:10px;margin-top:6px;">${u.progress.m2.thinkingMap ? `Punca: ${u.progress.m2.thinkingMap.punca} | Kesan: ${u.progress.m2.thinkingMap.kesan}` : 'Belum dilengkapkan.'}</p>
+    <div style="text-align:right;margin-top:14px;"><button class="btn-game btn-primary" onclick="closeModal()">Tutup</button></div>
+  </div></div>`;
+}
+function openWheretoModal() {
+  document.getElementById('modal-root').innerHTML = `<div class="modal-backdrop"><div class="modal-box">
+    <h2 class="game-font" style="color:#0f3d24;margin-bottom:8px;">📘 PANDUAN KURIKULUM & WHERETO</h2>
+    <p style="font-size:.88rem;margin-bottom:10px;"><strong>BM Tahun 6 | SK 1.2 / SP 1.2.2:</strong> Bertutur untuk menghujahkan sesuatu perkara menggunakan idea kritis & kreatif berdasarkan maklumat tersurat & tersirat.</p>
+    <div style="font-size:.85rem;background:#f8fafc;padding:12px;border-radius:12px;display:grid;gap:6px;">
+      <div><strong>W:</strong> Hala tuju Kempen Digital Selamatkan EcoWorld.</div>
+      <div><strong>H:</strong> Adegan penyiasatan sungai, audio Pak Mail & visual bandar.</div>
+      <div><strong>E (Equip):</strong> 5 misi berperingkat + pembinaan hujah & rakaman suara.</div>
+      <div><strong>R (Rethink):</strong> Semakan kendiri, rakan & maklum balas guru.</div>
+      <div><strong>E (Evaluate):</strong> Markah automatik, lencana pencapaian & rubrik PBL.</div>
+      <div><strong>T (Tailor):</strong> AI Mission Guide mencadangkan pengukuhan/pengayaan (disahkan guru).</div>
+      <div><strong>O (Organize):</strong> Peta pengembaraan tersusun hingga Hall of Heroes.</div>
+    </div>
+    <div style="text-align:right;margin-top:14px;"><button class="btn-game btn-primary" onclick="closeModal()">Tutup</button></div>
+  </div></div>`;
+}
+function closeModal() { document.getElementById('modal-root').innerHTML = ''; }
+renderApp();
+</script>
+</body>
+</html>

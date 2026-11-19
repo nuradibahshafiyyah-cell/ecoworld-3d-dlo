@@ -1,0 +1,6 @@
+{
+  "name": "EcoWorld 3D: Suara Generasi Prihatin",
+  "description": "Permainan pengembaraan 3D interaktif Bahasa Melayu Tahun 6 (SK 1.2 / SP 1.2.2) dengan 5 zon misi menyelamatkan bumi, pencarian bukti 3D, Makmal Suara, dan Projek Kempen Digital PBL.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
